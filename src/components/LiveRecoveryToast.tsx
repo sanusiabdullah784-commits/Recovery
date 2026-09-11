@@ -54,32 +54,33 @@ export function LiveRecoveryToast() {
   const currentToast = notifications[currentIndex];
 
   return (
-    <div className="fixed bottom-6 left-6 z-40 hidden md:block">
+    // Positioned bottom-left on desktop, but slightly higher on mobile to avoid overlapping the AI Chat
+    <div className="fixed bottom-20 left-4 right-4 md:bottom-6 md:left-6 md:right-auto z-40 md:max-w-sm">
       <AnimatePresence>
         {isVisible && (
           <motion.div
             key={currentToast.id}
-            initial={{ opacity: 0, x: -50, y: 20 }}
+            initial={{ opacity: 0, x: -20, y: 20 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, x: -50, y: 20 }}
+            exit={{ opacity: 0, x: -20, y: 20 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex items-center gap-4 p-4 bg-[#03313A]/80 backdrop-blur-xl border border-[#8FFFE0]/20 rounded-2xl shadow-2xl shadow-[#8FFFE0]/5 max-w-sm"
+            className="flex items-center gap-4 p-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-amber-200 dark:border-amber-800 rounded-2xl shadow-xl shadow-amber-500/10 dark:shadow-black/20"
           >
             {/* Icon */}
-            <div className="flex-shrink-0 p-2.5 bg-[#8FFFE0]/10 rounded-xl border border-[#8FFFE0]/20">
-              <CheckCircle className="h-5 w-5 text-[#8FFFE0]" />
+            <div className="flex-shrink-0 p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+              <CheckCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
 
             {/* Content */}
             <div className="flex-grow min-w-0">
-              <p className="text-sm font-bold text-white truncate">
+              <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
                 {currentToast.title}
               </p>
-              <div className="flex items-center gap-2 mt-1 text-xs text-[#8FFFE0]/70">
-                <MapPin className="h-3 w-3 flex-shrink-0" />
+              <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                <MapPin className="h-3 w-3 flex-shrink-0 text-amber-500" />
                 <span className="truncate">{currentToast.location}</span>
                 <span className="flex items-center gap-1 flex-shrink-0">
-                  <Clock className="h-3 w-3" />
+                  <Clock className="h-3 w-3 text-amber-500" />
                   {currentToast.time}
                 </span>
               </div>

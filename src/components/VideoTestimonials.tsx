@@ -56,12 +56,12 @@ export function VideoTestimonials() {
   };
 
   return (
-    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-gradient-to-b from-slate-900 via-blue-950 to-slate-950 transition-colors duration-300 overflow-hidden">
+    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
       
       {/* Background Decorations - Mobile Optimized */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent" />
-      <div className="absolute top-1/3 left-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-blue-500/10 rounded-full blur-[80px] sm:blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-indigo-500/10 rounded-full blur-[60px] sm:blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+      <div className="absolute top-1/3 left-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-[80px] sm:blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-yellow-500/10 dark:bg-yellow-500/5 rounded-full blur-[60px] sm:blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto max-w-6xl relative z-10">
         
@@ -73,14 +73,14 @@ export function VideoTestimonials() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-blue-500/10 text-blue-300 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-blue-500/20">
+          <span className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-amber-500/20">
             <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             {t("Real Stories, Real Results", "Real Stories, Real Results")}
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-3 sm:mb-4">
-            {t("See the", "See the")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">{t("Impact", "Impact")}</span>
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4">
+            {t("See the", "See the")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-yellow-600">{t("Impact", "Impact")}</span>
           </h2>
-          <p className="text-sm sm:text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed px-2">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed px-2">
             {t("Watch our clients share their firsthand experiences with Homeland Recovery Service Ltd.", "Watch our clients share their firsthand experiences with Homeland Recovery Service Ltd.")}
           </p>
         </motion.div>
@@ -103,7 +103,7 @@ export function VideoTestimonials() {
               }}
               className="group relative cursor-pointer"
             >
-              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700/50 shadow-2xl shadow-blue-900/20 group-hover:border-blue-500/30 group-hover:shadow-blue-500/20 transition-all duration-500">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-amber-900/5 dark:shadow-black/20 group-hover:border-amber-500/30 group-hover:shadow-amber-500/10 transition-all duration-500">
                 
                 {/* Thumbnail Image Area */}
                 <div className="relative aspect-video overflow-hidden">
@@ -114,7 +114,7 @@ export function VideoTestimonials() {
                   />
                   
                   {/* Dark Overlay for contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent" />
 
                   {/* ==========================================
                       3D HOLOGRAPHIC VERIFIED BADGE - Mobile Optimized
@@ -124,7 +124,7 @@ export function VideoTestimonials() {
                     className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20"
                     style={{ transformStyle: "preserve-3d" }}
                   >
-                    <div className="relative px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 backdrop-blur-md border border-emerald-400/30 overflow-hidden shadow-lg shadow-emerald-500/10">
+                    <div className="relative px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-500/20 backdrop-blur-md border border-amber-400/30 overflow-hidden shadow-lg shadow-amber-500/10">
                       {/* Holographic Shimmer Sweep */}
                       <motion.div 
                         className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"
@@ -134,10 +134,10 @@ export function VideoTestimonials() {
                       
                       <div className="relative flex items-center gap-1.5 sm:gap-2 z-10">
                         <div className="relative flex items-center justify-center">
-                          <div className="absolute w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-400 animate-ping opacity-75" />
-                          <div className="relative w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-emerald-400" />
+                          <div className="absolute w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-amber-400 animate-ping opacity-75" />
+                          <div className="relative w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-amber-400" />
                         </div>
-                        <span className="text-[9px] sm:text-[10px] font-bold text-emerald-300 uppercase tracking-wider drop-shadow-md">
+                        <span className="text-[9px] sm:text-[10px] font-bold text-amber-300 uppercase tracking-wider drop-shadow-md">
                           {t("Verified", "Verified")}
                         </span>
                       </div>
@@ -151,7 +151,7 @@ export function VideoTestimonials() {
                       <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                       <span className="text-[10px] sm:text-xs font-bold text-white">{video.duration}</span>
                     </div>
-                    <div className="px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-blue-600/80 backdrop-blur-md border border-blue-400/30">
+                    <div className="px-2 py-1 sm:px-3 sm:py-1 rounded-full bg-amber-600/90 backdrop-blur-md border border-amber-400/30">
                       <span className="text-[9px] sm:text-[10px] font-mono font-bold text-white tracking-wide">
                         {video.caseId}
                       </span>
@@ -161,9 +161,9 @@ export function VideoTestimonials() {
                   {/* Glowing Play Button - Mobile Optimized */}
                   <div className="absolute inset-0 flex items-center justify-center z-10">
                     <div className="relative">
-                      <div className="absolute inset-0 rounded-full bg-blue-500/30 animate-ping" />
-                      <div className="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse" />
-                      <div className="relative flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-xl group-hover:bg-blue-500 group-hover:border-blue-400 group-hover:scale-110 transition-all duration-300">
+                      <div className="absolute inset-0 rounded-full bg-amber-500/30 animate-ping" />
+                      <div className="absolute inset-0 rounded-full bg-yellow-400/20 animate-pulse" />
+                      <div className="relative flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 backdrop-blur-md border border-amber-400/50 shadow-xl group-hover:scale-110 transition-all duration-300">
                         <Play className="h-5 w-5 sm:h-6 sm:w-6 text-white fill-white ml-0.5 sm:ml-1" />
                       </div>
                     </div>
@@ -171,26 +171,26 @@ export function VideoTestimonials() {
                 </div>
 
                 {/* Video Info - Mobile Optimized */}
-                <div className="p-4 sm:p-6 bg-slate-900/80 backdrop-blur-sm">
-                  <p className="text-xs sm:text-sm text-blue-300 font-medium italic mb-3 sm:mb-4 leading-snug">"{video.quote}"</p>
+                <div className="p-4 sm:p-6 bg-white dark:bg-slate-900/80 backdrop-blur-sm">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium italic mb-3 sm:mb-4 leading-snug">"{video.quote}"</p>
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0">
                         <User className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-sm sm:text-base text-white font-bold truncate">{video.name}</h4>
-                        <p className="text-[10px] sm:text-xs text-slate-400 truncate">{video.role}</p>
+                        <h4 className="text-sm sm:text-base text-slate-900 dark:text-white font-bold truncate">{video.name}</h4>
+                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{video.role}</p>
                       </div>
                     </div>
                     
                     {/* Resolution Time Badge - Mobile Optimized */}
                     <div className="flex flex-col items-end flex-shrink-0">
-                      <span className="text-[9px] sm:text-[10px] text-slate-500 uppercase font-semibold tracking-wider">
+                      <span className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold tracking-wider">
                         {t("Resolved in", "Resolved in")}
                       </span>
-                      <span className="text-xs sm:text-sm font-bold text-cyan-400 flex items-center gap-1">
+                      <span className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
                         <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         {video.resolutionTime}
                       </span>

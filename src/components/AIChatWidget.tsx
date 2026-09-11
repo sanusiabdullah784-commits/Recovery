@@ -96,7 +96,7 @@ export function AIChatWidget() {
   };
 
   return (
-    // ✅ CHANGED: Moved from right-6 to left-6, and items-end to items-start
+    // Positioned bottom-left to avoid overlapping with WhatsApp
     <div className="fixed bottom-6 left-6 z-[100] flex flex-col items-start gap-4">
       {/* Chat Window */}
       <AnimatePresence>
@@ -106,18 +106,18 @@ export function AIChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1, originX: 0 }}
             exit={{ opacity: 0, y: 20, scale: 0.95, originX: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="w-[90vw] sm:w-[380px] h-[500px] max-h-[80vh] bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden"
+            className="w-[90vw] sm:w-[380px] h-[500px] max-h-[80vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-200/50 dark:border-amber-800/50 flex flex-col overflow-hidden"
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-fuchsia-600 p-4 flex items-center justify-between text-white">
+            {/* Header with Premium Gold Gradient */}
+            <div className="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 p-4 flex items-center justify-between text-white shadow-md">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-full">
+                <div className="p-2 bg-white/20 rounded-full backdrop-blur-sm">
                   <Bot className="h-5 w-5" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm">HLRS Assistant</h3>
-                  <p className="text-[10px] text-white/80 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                  <p className="text-[10px] text-white/90 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                     Online
                   </p>
                 </div>
@@ -140,21 +140,21 @@ export function AIChatWidget() {
                   className={`flex gap-2 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {msg.sender === "bot" && (
-                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 border border-amber-200 dark:border-amber-800">
+                      <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
                       msg.sender === "user"
-                        ? "bg-purple-600 text-white rounded-br-sm"
-                        : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-sm shadow-sm"
+                        ? "bg-amber-600 text-white rounded-br-sm"
+                        : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-amber-200/50 dark:border-amber-800/50 rounded-bl-sm"
                     }`}
                   >
                     {msg.text}
                   </div>
                   {msg.sender === "user" && (
-                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 border border-slate-300 dark:border-slate-600">
                       <User className="h-4 w-4 text-slate-600 dark:text-slate-300" />
                     </div>
                   )}
@@ -163,13 +163,13 @@ export function AIChatWidget() {
               
               {isTyping && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 border border-amber-200 dark:border-amber-800">
+                    <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   </div>
-                  <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1">
-                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" />
+                  <div className="bg-white dark:bg-slate-800 border border-amber-200/50 dark:border-amber-800/50 px-4 py-3 rounded-2xl rounded-bl-sm flex gap-1 shadow-sm">
+                    <span className="w-2 h-2 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-2 h-2 bg-amber-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-2 h-2 bg-amber-400 rounded-full animate-bounce" />
                   </div>
                 </motion.div>
               )}
@@ -177,7 +177,7 @@ export function AIChatWidget() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+            <div className="p-4 bg-white dark:bg-slate-900 border-t border-amber-100 dark:border-amber-900/30">
               <div className="flex gap-2 items-center">
                 <input
                   type="text"
@@ -185,12 +185,12 @@ export function AIChatWidget() {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask a question..."
-                  className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-500 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
+                  className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all border border-transparent focus:bg-white dark:focus:bg-slate-800"
                 />
                 <button
                   onClick={handleSend}
                   disabled={!inputValue.trim()}
-                  className="p-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:shadow-amber-500/30"
                 >
                   <Send className="h-4 w-4" />
                 </button>
@@ -208,9 +208,9 @@ export function AIChatWidget() {
         className="relative group"
       >
         {/* Pulse Effect */}
-        <span className="absolute inset-0 rounded-full bg-purple-600 animate-ping opacity-20" />
+        <span className="absolute inset-0 rounded-full bg-amber-500 animate-ping opacity-20" />
         
-        <div className="relative w-14 h-14 bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-full shadow-lg shadow-purple-500/30 flex items-center justify-center text-white transition-all">
+        <div className="relative w-14 h-14 bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600 rounded-full shadow-lg shadow-amber-500/30 flex items-center justify-center text-white transition-all group-hover:shadow-xl group-hover:shadow-amber-500/40">
           <AnimatePresence mode="wait">
             {isOpen ? (
               <motion.div

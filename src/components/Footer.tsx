@@ -55,7 +55,6 @@ function BackToTopButton() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Mobile: 48x48 (r=20), Desktop: 56x56 (r=24)
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
   const radius = isMobile ? 20 : 24;
   const circumference = 2 * Math.PI * radius;
@@ -77,19 +76,19 @@ function BackToTopButton() {
         style={{ x: springX, y: springY }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl shadow-slate-900/20 dark:shadow-white/10 border border-slate-700 dark:border-slate-200 group"
+        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-900 dark:bg-slate-800 text-white shadow-xl shadow-slate-900/20 dark:shadow-black/20 border border-slate-700 dark:border-slate-700 group"
         aria-label="Back to top"
       >
         <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none">
-          <circle cx={center} cy={center} r={radius} fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-200 dark:text-slate-800" />
+          <circle cx={center} cy={center} r={radius} fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-700 dark:text-slate-700" />
           <motion.circle
             cx={center} cy={center} r={radius} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-            className="text-cyan-500 dark:text-cyan-500"
+            className="text-amber-500"
             style={{ strokeDasharray: circumference, strokeDashoffset: strokeDashoffset }}
           />
         </svg>
         <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5 relative z-10 group-hover:-translate-y-0.5 transition-transform duration-300" />
-        <span className="absolute right-full mr-2 sm:mr-3 px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] sm:text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-lg">
+        <span className="absolute right-full mr-2 sm:mr-3 px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-900 dark:bg-slate-800 text-white text-[10px] sm:text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none whitespace-nowrap shadow-lg border border-slate-700">
           Back to Top
         </span>
       </motion.button>
@@ -124,7 +123,7 @@ function SpotlightColumn({ title, children }: { title: string; children: React.R
       ref={columnRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden rounded-2xl p-3 sm:p-4 -m-3 sm:-m-4 transition-colors duration-300"
+      className="relative overflow-hidden rounded-2xl p-3 sm:p-4 -m-3 sm:-m-4 transition-colors duration-300 group"
     >
       <motion.div
         className="absolute w-48 h-48 sm:w-64 sm:h-64 rounded-full pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -133,7 +132,7 @@ function SpotlightColumn({ title, children }: { title: string; children: React.R
           top: smoothY,
           translateX: "-50%",
           translateY: "-50%",
-          background: "radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0.05) 40%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 40%, transparent 70%)",
         }}
       />
       
@@ -153,11 +152,11 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
     <li>
       <Link 
         href={href} 
-        className="group/link relative inline-flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors duration-200"
+        className="group/link relative inline-flex items-center gap-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200"
       >
         <span className="relative">
           {children}
-          <span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover/link:w-full transition-all duration-300 ease-out" />
+          <span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-amber-500 to-yellow-500 group-hover/link:w-full transition-all duration-300 ease-out" />
         </span>
         <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-300" />
       </Link>
@@ -204,7 +203,7 @@ function SmartNewsletter() {
       
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 lg:justify-end">
         <div className="relative w-full sm:w-64">
-          <label className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none ${hasValue || isFocused ? "top-1 text-[10px] font-semibold text-cyan-600 dark:text-cyan-400" : "top-1/2 -translate-y-1/2 text-sm text-slate-500"}`}>
+          <label className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none ${hasValue || isFocused ? "top-1 text-[10px] font-semibold text-amber-600 dark:text-amber-400" : "top-1/2 -translate-y-1/2 text-sm text-slate-500"}`}>
             {t("Enter your email", "Enter your email")}
           </label>
           <input
@@ -214,11 +213,11 @@ function SmartNewsletter() {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             disabled={submissionStatus === "success"}
-            className={`w-full px-3 sm:px-4 pt-6 pb-2 bg-white dark:bg-slate-800 border-2 rounded-xl text-sm sm:text-base text-slate-900 dark:text-white focus:outline-none transition-all duration-300 ${
+            className={`w-full px-3 sm:px-4 pt-6 pb-2 bg-white dark:bg-slate-900 border-2 rounded-xl text-sm sm:text-base text-slate-900 dark:text-white focus:outline-none transition-all duration-300 ${
               submissionStatus === "success" ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20" :
               validationStatus === "invalid" && hasValue ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/20" :
-              validationStatus === "valid" ? "border-emerald-500 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20" :
-              "border-slate-200 dark:border-slate-700 focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20"
+              validationStatus === "valid" ? "border-amber-500 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20" :
+              "border-slate-200 dark:border-slate-800 focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20"
             }`}
           />
           <AnimatePresence>
@@ -237,8 +236,8 @@ function SmartNewsletter() {
           whileTap={{ scale: submissionStatus === "idle" && validationStatus === "valid" ? 0.98 : 1 }}
           className={`px-4 sm:px-6 py-2.5 sm:py-3 font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 min-w-[120px] sm:min-w-[140px] text-sm sm:text-base ${
             submissionStatus === "success" ? "bg-emerald-500 text-white" :
-            validationStatus === "valid" ? "bg-cyan-600 hover:bg-cyan-700 text-white hover:shadow-lg hover:shadow-cyan-500/20" :
-            "bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-500 cursor-not-allowed"
+            validationStatus === "valid" ? "bg-amber-600 hover:bg-amber-700 text-white hover:shadow-lg hover:shadow-amber-500/20" :
+            "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
           }`}
         >
           <AnimatePresence mode="wait">
@@ -319,8 +318,8 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[300px] bg-cyan-500/5 dark:bg-cyan-500/10 blur-[80px] sm:blur-[120px] pointer-events-none" />
+    <footer className="relative bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[800px] h-[200px] sm:h-[300px] bg-amber-500/5 dark:bg-amber-500/10 blur-[80px] sm:blur-[120px] pointer-events-none" />
       
       <div className="container mx-auto max-w-6xl px-3 sm:px-4 pt-16 sm:pt-20 pb-8 sm:pb-10 relative z-10">
         
@@ -334,12 +333,12 @@ export function Footer() {
         >
           <div>
             <Link href="/" className="flex items-center gap-2 font-extrabold text-lg sm:text-xl text-slate-900 dark:text-white mb-4 group">
-              <div className="p-1.5 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-lg shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform">
+              <div className="p-1.5 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
                 <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
               <span>
                 Homeland Recovery <br className="hidden sm:block" />
-                <span className="text-cyan-600 dark:text-cyan-400">Service Ltd</span>
+                <span className="text-amber-600 dark:text-amber-400">Service Ltd</span>
               </span>
             </Link>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-sm leading-relaxed mb-6">
@@ -347,7 +346,7 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-3 sm:gap-4">
               {socialIcons.map((social, i) => (
-                <a key={i} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label} className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:border-cyan-500/30 hover:bg-cyan-50 dark:hover:bg-cyan-950/20 transition-all duration-300">
+                <a key={i} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label} className="p-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all duration-300">
                   <social.Icon />
                 </a>
               ))}
@@ -380,27 +379,27 @@ export function Footer() {
           <SpotlightColumn title={t("Contact", "Contact Us")}>
             <ul className="space-y-3 sm:space-y-4">
               <li className="flex items-start gap-3 text-xs sm:text-sm">
-                <MapPin className="h-4 w-4 mt-0.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
+                <MapPin className="h-4 w-4 mt-0.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                 <span>Abuja, Nigeria</span>
               </li>
               <li className="flex items-center gap-3 text-xs sm:text-sm">
                 <MessageCircle className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                <a href="https://wa.me/2349136931832" target="_blank" rel="noopener noreferrer" className="group/link relative inline-flex items-center gap-1.5 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors font-medium">
-                  <span className="relative">WhatsApp: 09136931832<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
+                <a href="https://wa.me/2349136931832" target="_blank" rel="noopener noreferrer" className="group/link relative inline-flex items-center gap-1.5 hover:text-amber-600 dark:hover:text-amber-400 transition-colors font-medium">
+                  <span className="relative">WhatsApp: 09136931832<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-amber-500 to-yellow-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
                   <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-300" />
                 </a>
               </li>
               <li className="flex items-center gap-3 text-xs sm:text-sm">
-                <Phone className="h-4 w-4 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
-                <a href="tel:+2349065173333" className="group/link relative inline-flex items-center gap-1.5 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors font-medium">
-                  <span className="relative">Call: +234 906 517 3333<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
+                <Phone className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                <a href="tel:+2349065173333" className="group/link relative inline-flex items-center gap-1.5 hover:text-amber-600 dark:hover:text-amber-400 transition-colors font-medium">
+                  <span className="relative">Call: +234 906 517 3333<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-amber-500 to-yellow-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
                   <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-300" />
                 </a>
               </li>
               <li className="flex items-center gap-3 text-xs sm:text-sm">
-                <Mail className="h-4 w-4 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
-                <a href="mailto:homelandrecoveryservicesltd@gmail.com" className="group/link relative inline-flex items-center gap-1.5 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors break-all font-medium">
-                  <span className="relative">homelandrecoveryservicesltd@gmail.com<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
+                <Mail className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                <a href="mailto:homelandrecoveryservicesltd@gmail.com" className="group/link relative inline-flex items-center gap-1.5 hover:text-amber-600 dark:hover:text-amber-400 transition-colors break-all font-medium">
+                  <span className="relative">homelandrecoveryservicesltd@gmail.com<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-amber-500 to-yellow-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
                   <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-300" />
                 </a>
               </li>
@@ -418,13 +417,13 @@ export function Footer() {
         >
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 px-2">
             {trustBadges.map((badge, index) => (
-              <div key={index} className="group flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-cyan-500/40 hover:bg-cyan-50/50 dark:hover:bg-cyan-950/20 hover:shadow-lg hover:shadow-cyan-500/10 transition-all duration-300 cursor-default">
-                <div className="p-1.5 sm:p-2 rounded-lg bg-slate-100 dark:bg-slate-700 group-hover:bg-cyan-100 dark:group-hover:bg-cyan-900/40 transition-colors duration-300">
-                  <div className="text-slate-500 dark:text-slate-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">{badge.icon}</div>
+              <div key={index} className="group flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:border-amber-500/40 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 cursor-default">
+                <div className="p-1.5 sm:p-2 rounded-lg bg-white dark:bg-slate-800 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/40 transition-colors duration-300">
+                  <div className="text-slate-500 dark:text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors duration-300">{badge.icon}</div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors duration-300">{badge.label}</span>
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wider group-hover:text-cyan-600/70 dark:group-hover:text-cyan-400/70 transition-colors duration-300">{badge.sublabel}</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors duration-300">{badge.label}</span>
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-slate-500 dark:text-slate-500 uppercase tracking-wider group-hover:text-amber-600/70 dark:group-hover:text-amber-400/70 transition-colors duration-300">{badge.sublabel}</span>
                 </div>
               </div>
             ))}
@@ -437,14 +436,14 @@ export function Footer() {
             &copy; {currentYear} Homeland Recovery Service Ltd. {t("All rights reserved.", "All rights reserved.")}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            <Link href="/privacy" className="group/link relative inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
-              <span className="relative">{t("Privacy", "Privacy")}<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
+            <Link href="/privacy" className="group/link relative inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+              <span className="relative">{t("Privacy", "Privacy")}<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-amber-500 to-yellow-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
             </Link>
-            <Link href="/terms" className="group/link relative inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
-              <span className="relative">{t("Terms", "Terms")}<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
+            <Link href="/terms" className="group/link relative inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+              <span className="relative">{t("Terms", "Terms")}<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-amber-500 to-yellow-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
             </Link>
-            <Link href="/cookies" className="group/link relative inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
-              <span className="relative">{t("Cookies", "Cookies")}<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-cyan-500 to-teal-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
+            <Link href="/cookies" className="group/link relative inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+              <span className="relative">{t("Cookies", "Cookies")}<span className="absolute -bottom-1 left-0 h-px w-0 bg-gradient-to-r from-amber-500 to-yellow-500 group-hover/link:w-full transition-all duration-300 ease-out" /></span>
             </Link>
           </div>
         </div>

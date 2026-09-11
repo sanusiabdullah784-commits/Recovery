@@ -71,7 +71,7 @@ export function FAQ() {
     const parts = text.split(regex);
     return parts.map((part, i) => 
       regex.test(part) ? (
-        <mark key={i} className="bg-amber-500/30 text-amber-700 dark:text-amber-300 px-0.5 rounded font-semibold">
+        <mark key={i} className="bg-amber-500/30 text-amber-800 dark:text-amber-300 px-0.5 rounded font-semibold">
           {part}
         </mark>
       ) : part
@@ -89,12 +89,12 @@ export function FAQ() {
   };
 
   return (
-    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-gradient-to-b from-indigo-50/50 via-slate-50 to-white dark:from-slate-900 dark:via-indigo-950/20 dark:to-slate-950 transition-colors duration-300 overflow-hidden">
+    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
       
       {/* Background Decorations - Mobile Optimized */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
-      <div className="absolute top-1/4 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[80px] sm:blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-violet-500/5 dark:bg-violet-500/10 rounded-full blur-[60px] sm:blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+      <div className="absolute top-1/4 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-[80px] sm:blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[250px] sm:w-[500px] h-[250px] sm:h-[500px] bg-yellow-500/5 dark:bg-yellow-500/10 rounded-full blur-[60px] sm:blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto max-w-4xl relative z-10">
         
@@ -106,7 +106,7 @@ export function FAQ() {
           transition={{ duration: 0.6 }}
           className="text-center mb-8 sm:mb-12"
         >
-          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-indigo-200 dark:border-indigo-800">
+          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-amber-500/20">
             {t("Frequently Asked Questions", "Questions Weey Dey Ask Pass")}
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4">
@@ -133,10 +133,10 @@ export function FAQ() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t("Search questions...", "Search questions...")}
-                className="w-full pl-9 sm:pl-12 pr-10 sm:pr-12 py-3 sm:py-4 bg-white/80 dark:bg-slate-800/60 backdrop-blur-md border border-slate-200 dark:border-slate-700 rounded-xl sm:rounded-2xl text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 transition-all shadow-lg shadow-slate-900/5"
+                className="w-full pl-9 sm:pl-12 pr-10 sm:pr-12 py-3 sm:py-4 bg-slate-50 dark:bg-slate-900 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500/50 transition-all shadow-sm"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-3 sm:right-4 p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                <button onClick={() => setSearchQuery("")} className="absolute right-3 sm:right-4 p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
                   <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400" />
                 </button>
               )}
@@ -164,8 +164,8 @@ export function FAQ() {
                   whileTap={{ scale: 0.95 }}
                   className={`flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base transition-all duration-300 ${
                     isActive
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-                      : "bg-white/60 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-white dark:hover:bg-slate-800"
+                      ? "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-white shadow-lg shadow-amber-500/30"
+                      : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -191,17 +191,17 @@ export function FAQ() {
                 const originalIndex = faqs.findIndex(f => f.question === faq.question);
                 const isOpen = openIndex === originalIndex;
                 return (
-                  <motion.div key={index} variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ delay: index * 0.05 }} className={`group rounded-xl sm:rounded-2xl border transition-all duration-300 overflow-hidden ${isOpen ? "bg-white dark:bg-slate-800/80 border-indigo-200 dark:border-indigo-800/50 shadow-lg shadow-indigo-500/5" : "bg-white/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/50 hover:border-indigo-200 dark:hover:border-indigo-800/50 hover:bg-white dark:hover:bg-slate-800/60"}`}>
+                  <motion.div key={index} variants={itemVariants} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ delay: index * 0.05 }} className={`group rounded-xl sm:rounded-2xl border transition-all duration-300 overflow-hidden ${isOpen ? "bg-white dark:bg-slate-900 border-amber-200 dark:border-amber-800/50 shadow-lg shadow-amber-500/5" : "bg-slate-50/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-amber-200 dark:hover:border-amber-800/50 hover:bg-white dark:hover:bg-slate-900"}`}>
                     <button onClick={() => setOpenIndex(isOpen ? null : originalIndex)} className="w-full flex items-center justify-between p-4 sm:p-6 text-left">
                       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                        <div className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-colors ${isOpen ? "bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400" : "bg-slate-100 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 group-hover:text-indigo-600 dark:group-hover:text-indigo-400"}`}>
+                        <div className={`flex-shrink-0 p-1.5 sm:p-2 rounded-lg transition-colors ${isOpen ? "bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400" : "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/30 group-hover:text-amber-600 dark:group-hover:text-amber-400"}`}>
                           {isOpen ? <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" /> : <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />}
                         </div>
-                        <span className={`text-sm sm:text-lg font-bold transition-colors break-words ${isOpen ? "text-indigo-700 dark:text-indigo-300" : "text-slate-900 dark:text-white"}`}>
+                        <span className={`text-sm sm:text-lg font-bold transition-colors break-words ${isOpen ? "text-amber-700 dark:text-amber-300" : "text-slate-900 dark:text-white"}`}>
                           {highlightMatch(faq.question, searchQuery)}
                         </span>
                       </div>
-                      <ChevronDown className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 transition-all duration-300 ${isOpen ? "rotate-180 text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-slate-500"}`} />
+                      <ChevronDown className={`h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 transition-all duration-300 ${isOpen ? "rotate-180 text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500"}`} />
                     </button>
                     <AnimatePresence>
                       {isOpen && (
@@ -220,7 +220,7 @@ export function FAQ() {
                 <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4"><Search className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400" /></div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">{t("No results found", "No results found")}</h3>
                 <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4">{t("Try searching with different keywords or switch categories", "Try searching with different keywords or switch categories")}</p>
-                <button onClick={() => { setSearchQuery(""); setActiveCategory("all"); }} className="px-5 py-2 sm:px-6 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl transition-colors">{t("Clear filters", "Clear filters")}</button>
+                <button onClick={() => { setSearchQuery(""); setActiveCategory("all"); }} className="px-5 py-2 sm:px-6 sm:py-2 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 text-white text-sm sm:text-base font-semibold rounded-lg sm:rounded-xl transition-all shadow-md shadow-amber-500/20">{t("Clear filters", "Clear filters")}</button>
               </motion.div>
             )}
           </AnimatePresence>
@@ -234,11 +234,11 @@ export function FAQ() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mt-12 sm:mt-20 relative overflow-hidden rounded-2xl sm:rounded-[2rem] bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 p-6 sm:p-8 md:p-12 text-center shadow-2xl shadow-indigo-500/20 mx-2 sm:mx-0"
+          className="mt-12 sm:mt-20 relative overflow-hidden rounded-2xl sm:rounded-[2rem] bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600 p-6 sm:p-8 md:p-12 text-center shadow-2xl shadow-amber-500/20 mx-2 sm:mx-0"
         >
           {/* Decorative Background Elements */}
           <div className="absolute top-0 left-0 w-full h-full opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
-          <div className="absolute -top-24 -right-24 w-48 h-48 sm:w-64 sm:h-64 bg-white/10 rounded-full blur-2xl sm:blur-3xl" />
+          <div className="absolute -top-24 -right-24 w-48 h-48 sm:w-64 sm:h-64 bg-white/20 rounded-full blur-2xl sm:blur-3xl" />
           <div className="absolute -bottom-24 -left-24 w-48 h-48 sm:w-64 sm:h-64 bg-black/10 rounded-full blur-2xl sm:blur-3xl" />
 
           <div className="relative z-10 flex flex-col items-center">
@@ -247,7 +247,7 @@ export function FAQ() {
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.4 }}
-              className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-4 sm:mb-6"
+              className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 mb-4 sm:mb-6"
             >
               <MessageCircle className="h-7 w-7 sm:h-8 sm:w-8 text-white" />
             </motion.div>
@@ -255,7 +255,7 @@ export function FAQ() {
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-4 tracking-tight px-2">
               {t("Still Have Questions?", "Questions Still Dey?")}
             </h3>
-            <p className="text-sm sm:text-base md:text-lg text-white/80 max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed px-2">
+            <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-xl mx-auto mb-6 sm:mb-10 leading-relaxed px-2">
               {t("Our legal experts and support team are standing by 24/7 to assist you with your specific case.", "Our legal experts and support team dey stand by 24/7 to assist you with your specific case.")}
             </p>
 
@@ -264,7 +264,7 @@ export function FAQ() {
                 <motion.button
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.97 }}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-white text-indigo-700 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-white text-amber-700 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
                 >
                   <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                   {t("Chat on WhatsApp", "Chat on WhatsApp")}
@@ -275,7 +275,7 @@ export function FAQ() {
                 <motion.button
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.97 }}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/30 hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
                 >
                   <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
                   {t("Send an Email", "Send an Email")}

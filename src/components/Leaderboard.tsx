@@ -49,7 +49,7 @@ export function Leaderboard() {
       order: 2, 
       crownIcon: <Crown className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" />,
       accentColor: "from-amber-400 via-yellow-500 to-amber-600",
-      bgGradient: "from-amber-500/20 via-yellow-500/10 to-amber-600/20",
+      bgGradient: "from-amber-100/60 via-amber-50/40 to-white dark:from-amber-900/30 dark:via-slate-800 dark:to-slate-900",
       rankText: "text-amber-600 dark:text-amber-400"
     },
     2: { 
@@ -57,7 +57,7 @@ export function Leaderboard() {
       order: 1, 
       crownIcon: <Medal className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-slate-400 drop-shadow-[0_0_6px_rgba(148,163,184,0.5)]" />,
       accentColor: "from-slate-300 to-slate-500",
-      bgGradient: "from-slate-400/20 to-slate-600/10",
+      bgGradient: "from-slate-100/60 via-slate-50/40 to-white dark:from-slate-800/50 dark:via-slate-800 dark:to-slate-800/50",
       rankText: "text-slate-500 dark:text-slate-400"
     },
     3: { 
@@ -65,7 +65,7 @@ export function Leaderboard() {
       order: 3, 
       crownIcon: <Medal className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-orange-500 drop-shadow-[0_0_6px_rgba(249,115,22,0.5)]" />,
       accentColor: "from-orange-400 to-amber-600",
-      bgGradient: "from-orange-400/20 to-amber-600/10",
+      bgGradient: "from-orange-100/60 via-orange-50/40 to-white dark:from-orange-900/30 dark:via-slate-800 dark:to-slate-900",
       rankText: "text-orange-500 dark:text-orange-400"
     }
   };
@@ -82,7 +82,7 @@ export function Leaderboard() {
   };
 
   return (
-    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-gradient-to-b from-amber-50/50 via-orange-50/20 to-white dark:from-slate-900 dark:via-amber-950/10 dark:to-slate-950 transition-colors duration-300 overflow-hidden">
+    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
       
       {/* Background Decorations - Mobile Optimized */}
       <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
@@ -98,7 +98,7 @@ export function Leaderboard() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-amber-200 dark:border-amber-800">
+          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-amber-500/20">
             Hall of Fame
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4">
@@ -115,18 +115,18 @@ export function Leaderboard() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-amber-100 dark:border-amber-900/30 shadow-xl shadow-amber-500/5"
+          className="bg-white dark:bg-slate-900 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-xl shadow-amber-500/5 dark:shadow-black/20"
         >
           
           {/* Header inside card */}
-          <div className="flex items-center justify-between mb-6 sm:mb-8 pb-3 sm:pb-4 border-b border-slate-100 dark:border-slate-700/50">
+          <div className="flex items-center justify-between mb-6 sm:mb-8 pb-3 sm:pb-4 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
               <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">Monthly Rankings</h3>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-500 animate-pulse" />
-              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 px-2 sm:px-3 py-1 rounded-full">
+              <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-500 animate-pulse" />
+              <span className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 px-2 sm:px-3 py-1 rounded-full border border-amber-200 dark:border-amber-800">
                 Updated Live
               </span>
             </div>
@@ -188,7 +188,7 @@ export function Leaderboard() {
                   
                   {/* City */}
                   <p className="text-[9px] sm:text-[10px] md:text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-2">
-                    <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> {helper.city}
+                    <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-500" /> {helper.city}
                   </p>
 
                   {/* Items Count */}
@@ -208,7 +208,7 @@ export function Leaderboard() {
                   <div className="w-full mb-2 sm:mb-3 px-1 sm:px-2">
                     <div className="flex items-center justify-between text-[8px] sm:text-[9px] md:text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">
                       <span className="flex items-center gap-1">
-                        <Target className="h-2 w-2 sm:h-2.5 sm:w-2.5" />
+                        <Target className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-amber-500" />
                         {progress.isLeader ? "Leading" : "Next"}
                       </span>
                       <span className="tabular-nums truncate">{progress.label}</span>
@@ -229,12 +229,12 @@ export function Leaderboard() {
                   </div>
 
                   {/* Podium Block */}
-                  <div className={`w-full ${config.height} rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b ${config.bgGradient} border-t border-x border-white/40 dark:border-white/10 shadow-lg relative overflow-hidden backdrop-blur-sm`}>
+                  <div className={`w-full ${config.height} rounded-t-xl sm:rounded-t-2xl bg-gradient-to-b ${config.bgGradient} border-t border-x border-slate-200/50 dark:border-slate-700/50 shadow-lg relative overflow-hidden backdrop-blur-sm`}>
                     {/* Inner shine */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-transparent to-transparent dark:from-white/5" />
                     {/* Large rank number watermark */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className={`text-4xl sm:text-5xl md:text-7xl font-black bg-gradient-to-b ${config.accentColor} bg-clip-text text-transparent opacity-40`}>
+                      <span className={`text-4xl sm:text-5xl md:text-7xl font-black bg-gradient-to-b ${config.accentColor} bg-clip-text text-transparent opacity-30 dark:opacity-40`}>
                         {helper.rank}
                       </span>
                     </div>
@@ -266,7 +266,7 @@ export function Leaderboard() {
                       scale: 1.01, 
                       transition: { type: "spring", stiffness: 300, damping: 20 }
                     }}
-                    className="group relative flex flex-col gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-300 cursor-default bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-700/50 hover:border-amber-200 dark:hover:border-amber-800/50"
+                    className="group relative flex flex-col gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all duration-300 cursor-default bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:border-amber-500/30 dark:hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5"
                   >
                     
                     {/* Main Row */}
@@ -288,11 +288,11 @@ export function Leaderboard() {
 
                       {/* User Info */}
                       <div className="flex-grow min-w-0">
-                        <h4 className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white truncate group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
+                        <h4 className="text-sm sm:text-lg font-bold text-slate-900 dark:text-white truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                           {helper.name}
                         </h4>
                         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                          <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> {helper.city}
+                          <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-500" /> {helper.city}
                         </p>
                       </div>
 
@@ -338,7 +338,7 @@ export function Leaderboard() {
           )}
 
           {/* Call to Action - Mobile Optimized */}
-          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-100 dark:border-slate-700/50 text-center">
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mb-4 font-medium px-2">
               Want to see your name on this list?
             </p>

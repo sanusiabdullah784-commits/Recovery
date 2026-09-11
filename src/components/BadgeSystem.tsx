@@ -52,18 +52,18 @@ function BadgeCard({ badge, index }: { badge: any, index: number }) {
       }}
       className="group relative cursor-pointer"
     >
-      <div className={`h-full bg-white/80 dark:bg-slate-800/50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center border border-emerald-100 dark:border-emerald-900/30 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:border-emerald-200 dark:hover:border-emerald-800/50 transition-colors duration-300 relative overflow-hidden`}>
+      <div className="h-full bg-white dark:bg-slate-900 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-500/30 transition-all duration-300 relative overflow-hidden">
         
         {/* Holographic Shimmer Effect */}
         <motion.div 
-          className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 dark:via-white/15 to-transparent skew-x-12 pointer-events-none z-20"
+          className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-amber-200/40 dark:via-amber-200/15 to-transparent skew-x-12 pointer-events-none z-20"
           initial={{ x: "-150%" }}
           whileHover={{ x: "150%" }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
         />
 
         {/* Subtle inner glow on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
 
         {/* Content with 3D depth */}
         <div className="relative z-10 flex flex-col items-center" style={{ transform: "translateZ(30px)" }}>
@@ -71,8 +71,8 @@ function BadgeCard({ badge, index }: { badge: any, index: number }) {
           {/* Status Icon (Check or Lock) */}
           <div className={`absolute top-3 right-3 sm:top-4 sm:right-4 h-4 w-4 sm:h-5 sm:w-5 rounded-full flex items-center justify-center shadow-md ${
             badge.isUnlocked 
-              ? "bg-emerald-500 shadow-emerald-500/40" 
-              : "bg-slate-400 dark:bg-slate-600 shadow-slate-500/20"
+              ? "bg-amber-500 shadow-amber-500/40" 
+              : "bg-slate-300 dark:bg-slate-700 shadow-slate-500/20"
           }`}>
             {badge.isUnlocked ? (
               <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" strokeWidth={3} />
@@ -82,12 +82,12 @@ function BadgeCard({ badge, index }: { badge: any, index: number }) {
           </div>
 
           {/* Badge Icon */}
-          <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br ${badge.color} text-white mb-3 sm:mb-4 shadow-lg ${badge.glow} group-hover:scale-110 transition-transform duration-300 ${!badge.isUnlocked ? 'opacity-60 grayscale-[30%]' : ''}`}>
+          <div className={`inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br ${badge.color} text-white mb-3 sm:mb-4 shadow-lg ${badge.glow} group-hover:scale-110 transition-transform duration-300 ${!badge.isUnlocked ? 'opacity-70 grayscale-[20%]' : ''}`}>
             {badge.icon}
           </div>
 
           {/* Badge Title */}
-          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-tight">
+          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-tight">
             {badge.title}
           </h3>
           
@@ -134,8 +134,8 @@ export function BadgeSystem() {
       icon: <Heart className="h-5 w-5 sm:h-6 sm:w-6" />,
       title: "Good Samaritan",
       description: "Helped recover 5+ items",
-      color: "from-pink-500 to-rose-600",
-      glow: "shadow-pink-500/30",
+      color: "from-amber-400 to-yellow-500",
+      glow: "shadow-amber-500/30",
       current: 5,
       target: 5,
       isUnlocked: true
@@ -144,8 +144,8 @@ export function BadgeSystem() {
       icon: <Shield className="h-5 w-5 sm:h-6 sm:w-6" />,
       title: "Trusted Helper",
       description: "Verified by 10+ users",
-      color: "from-blue-500 to-cyan-600",
-      glow: "shadow-blue-500/30",
+      color: "from-yellow-500 to-amber-600",
+      glow: "shadow-yellow-500/30",
       current: 7,
       target: 10,
       isUnlocked: false
@@ -164,8 +164,8 @@ export function BadgeSystem() {
       icon: <Crown className="h-5 w-5 sm:h-6 sm:w-6" />,
       title: "Recovery Champion",
       description: "Helped recover 50+ items",
-      color: "from-purple-500 to-indigo-600",
-      glow: "shadow-purple-500/30",
+      color: "from-yellow-400 to-amber-500",
+      glow: "shadow-yellow-500/30",
       current: 50,
       target: 50,
       isUnlocked: true
@@ -174,8 +174,8 @@ export function BadgeSystem() {
       icon: <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />,
       title: "Legend",
       description: "Helped recover 100+ items",
-      color: "from-emerald-500 to-teal-600",
-      glow: "shadow-emerald-500/30",
+      color: "from-amber-500 to-amber-700",
+      glow: "shadow-amber-500/30",
       current: 42,
       target: 100,
       isUnlocked: false
@@ -183,11 +183,11 @@ export function BadgeSystem() {
   ];
 
   return (
-    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-gradient-to-b from-emerald-50/50 to-white dark:from-slate-900 dark:to-emerald-950/10 transition-colors duration-300 overflow-hidden">
+    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
       
       {/* Background Decorations */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[800px] h-[400px] sm:h-[800px] bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" />
 
       <div className="container mx-auto max-w-6xl relative z-10">
         
@@ -199,11 +199,11 @@ export function BadgeSystem() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-emerald-200 dark:border-emerald-800">
+          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-amber-500/20">
             Rewards & Recognition
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4">
-            Community <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Heroes</span>
+            Community <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600">Heroes</span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed px-2">
             Earn exclusive badges and recognition for helping others recover their lost items and resolving disputes.

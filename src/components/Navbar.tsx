@@ -55,7 +55,7 @@ export function Navbar() {
       style={{ perspective: "1000px" }}
       className={`sticky top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled 
-          ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-lg shadow-slate-900/5 dark:shadow-black/20 border-b border-slate-200/80 dark:border-slate-800/80" 
+          ? "bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-lg shadow-amber-900/5 dark:shadow-black/20 border-b border-slate-200/80 dark:border-slate-800/80" 
           : "bg-transparent border-transparent"
       }`}
     >
@@ -73,10 +73,10 @@ export function Navbar() {
             priority
           />
           <div className="flex flex-col leading-tight min-w-0">
-            <span className={`font-extrabold text-sm md:text-xl transition-colors truncate ${isScrolled ? "text-slate-900 dark:text-white" : "text-white"}`}>
+            <span className={`font-extrabold text-sm md:text-xl transition-colors truncate ${isScrolled ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white"}`}>
               Homeland Recovery
             </span>
-            <span className={`font-bold text-[10px] md:text-sm hidden sm:block transition-colors truncate ${isScrolled ? "text-purple-600 dark:text-purple-400" : "text-purple-300"}`}>
+            <span className={`font-bold text-[10px] md:text-sm hidden sm:block transition-colors truncate ${isScrolled ? "text-amber-600 dark:text-amber-400" : "text-amber-600 dark:text-amber-400"}`}>
               Services Ltd
             </span>
           </div>
@@ -90,15 +90,15 @@ export function Navbar() {
               href={link.href} 
               className={`relative px-2 py-2 text-sm xl:text-base font-semibold transition-colors group whitespace-nowrap ${
                 isScrolled 
-                  ? "text-slate-600 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400" 
-                  : "text-white/90 hover:text-white"
+                  ? "text-slate-600 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400" 
+                  : "text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400"
               }`}
             >
               {link.label}
               <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 transition-all duration-300 ${
                 isScrolled 
-                  ? "bg-gradient-to-r from-purple-600 to-fuchsia-600 group-hover:w-3/4 w-0" 
-                  : "bg-white group-hover:w-3/4 w-0"
+                  ? "bg-gradient-to-r from-amber-500 to-yellow-600 group-hover:w-3/4 w-0" 
+                  : "bg-gradient-to-r from-amber-500 to-yellow-600 group-hover:w-3/4 w-0"
               }`} />
             </Link>
           ))}
@@ -110,12 +110,12 @@ export function Navbar() {
             onClick={() => setLang(lang === "en" ? "pid" : "en")}
             className={`flex items-center gap-2 px-3 xl:px-4 py-2 xl:py-2.5 rounded-full transition-all border text-sm ${
               isScrolled 
-                ? "bg-slate-100 dark:bg-slate-800 hover:bg-purple-100 dark:hover:bg-purple-900/30 border-transparent hover:border-purple-200 dark:hover:border-purple-800" 
-                : "bg-white/10 hover:bg-white/20 border-white/10 hover:border-white/20 backdrop-blur-sm"
+                ? "bg-slate-100 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-amber-900/30 border-transparent hover:border-amber-200 dark:hover:border-amber-800" 
+                : "bg-slate-100/50 dark:bg-slate-800/50 hover:bg-amber-100 dark:hover:bg-amber-900/30 border-slate-200 dark:border-slate-700 hover:border-amber-200 dark:hover:border-amber-800 backdrop-blur-sm"
             }`}
           >
-            <Globe className={`h-4 w-4 xl:h-5 xl:w-5 transition-colors ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white"}`} />
-            <span className={`font-bold transition-colors ${isScrolled ? "text-slate-700 dark:text-slate-200" : "text-white"}`}>
+            <Globe className={`h-4 w-4 xl:h-5 xl:w-5 transition-colors ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-slate-600 dark:text-slate-300"}`} />
+            <span className={`font-bold transition-colors ${isScrolled ? "text-slate-700 dark:text-slate-200" : "text-slate-700 dark:text-slate-200"}`}>
               {lang === "en" ? "English" : "Pidgin"}
             </span>
           </button>
@@ -126,8 +126,8 @@ export function Navbar() {
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="relative w-10 h-10 xl:w-12 xl:h-12 shrink-0"
           >
-            <Sun className={`h-5 w-5 xl:h-6 xl:w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white"}`} />
-            <Moon className={`absolute h-5 w-5 xl:h-6 xl:w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white"}`} />
+            <Sun className={`h-5 w-5 xl:h-6 xl:w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 ${isScrolled ? "text-slate-600 dark:text-amber-400" : "text-slate-600 dark:text-amber-400"}`} />
+            <Moon className={`absolute h-5 w-5 xl:h-6 xl:w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 ${isScrolled ? "text-slate-600 dark:text-amber-400" : "text-slate-600 dark:text-amber-400"}`} />
           </Button>
         </div>
 
@@ -137,12 +137,12 @@ export function Navbar() {
             onClick={() => setLang(lang === "en" ? "pid" : "en")}
             className={`flex items-center gap-1.5 px-2.5 py-2 rounded-full border transition-all ${
               isScrolled 
-                ? "bg-slate-100 dark:bg-slate-800 border-transparent" 
-                : "bg-white/10 border-white/10 backdrop-blur-sm"
+                ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700" 
+                : "bg-slate-100/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 backdrop-blur-sm"
             }`}
           >
-            <Globe className={`h-4 w-4 ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white"}`} />
-            <span className={`text-xs font-bold ${isScrolled ? "text-slate-700 dark:text-slate-200" : "text-white"}`}>
+            <Globe className={`h-4 w-4 ${isScrolled ? "text-slate-600 dark:text-amber-400" : "text-slate-600 dark:text-amber-400"}`} />
+            <span className={`text-xs font-bold ${isScrolled ? "text-slate-700 dark:text-slate-200" : "text-slate-700 dark:text-slate-200"}`}>
               {lang === "en" ? "English" : "Pidgin"}
             </span>
           </button>
@@ -153,8 +153,8 @@ export function Navbar() {
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="w-10 h-10 shrink-0"
           >
-            <Sun className={`h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white"}`} />
-            <Moon className={`absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 ${isScrolled ? "text-slate-600 dark:text-slate-300" : "text-white"}`} />
+            <Sun className={`h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 ${isScrolled ? "text-slate-600 dark:text-amber-400" : "text-slate-600 dark:text-amber-400"}`} />
+            <Moon className={`absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 ${isScrolled ? "text-slate-600 dark:text-amber-400" : "text-slate-600 dark:text-amber-400"}`} />
           </Button>
           
           <Button 
@@ -166,11 +166,11 @@ export function Navbar() {
             <AnimatePresence mode="wait">
               {isOpen ? (
                 <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <X className={`h-6 w-6 ${isScrolled ? "text-slate-900 dark:text-white" : "text-white"}`} />
+                  <X className={`h-6 w-6 ${isScrolled ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white"}`} />
                 </motion.div>
               ) : (
                 <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <Menu className={`h-6 w-6 ${isScrolled ? "text-slate-900 dark:text-white" : "text-white"}`} />
+                  <Menu className={`h-6 w-6 ${isScrolled ? "text-slate-900 dark:text-white" : "text-slate-900 dark:text-white"}`} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -200,10 +200,10 @@ export function Navbar() {
                   <Link 
                     href={link.href} 
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-between px-4 py-3 text-slate-700 dark:text-slate-300 font-semibold text-base hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-xl transition-colors group"
+                    className="flex items-center justify-between px-4 py-3 text-slate-700 dark:text-slate-300 font-semibold text-base hover:bg-amber-50 dark:hover:bg-amber-950/20 rounded-xl transition-colors group"
                   >
                     <span>{link.label}</span>
-                    <span className="text-purple-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity text-lg">→</span>
+                    <span className="text-amber-600 dark:text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity text-lg">→</span>
                   </Link>
                 </motion.div>
               ))}
@@ -217,13 +217,13 @@ export function Navbar() {
               >
                 <button 
                   onClick={() => setLang(lang === "en" ? "pid" : "en")}
-                  className="flex items-center justify-between w-full px-4 py-3 text-slate-700 dark:text-slate-300 font-semibold text-base hover:bg-purple-50 dark:hover:bg-purple-950/20 rounded-xl transition-colors"
+                  className="flex items-center justify-between w-full px-4 py-3 text-slate-700 dark:text-slate-300 font-semibold text-base hover:bg-amber-50 dark:hover:bg-amber-950/20 rounded-xl transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <Globe className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                     {lang === "en" ? "Switch to Pidgin" : "Switch to English"}
                   </span>
-                  <span className="text-xs font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-3 py-1.5 rounded-md">
+                  <span className="text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-md">
                     {lang === "en" ? "English → Pidgin" : "Pidgin → English"}
                   </span>
                 </button>

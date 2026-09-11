@@ -52,11 +52,11 @@ export function HowItWorks() {
   };
 
   return (
-    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 transition-colors duration-300 overflow-visible">
+    <section className="relative py-16 sm:py-24 px-3 sm:px-4 bg-white dark:bg-slate-950 transition-colors duration-300 overflow-visible">
       
       {/* Background decoration - Mobile Optimized */}
-      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-purple-500/20" />
-      <div className="absolute top-1/2 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+      <div className="absolute top-1/2 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto max-w-6xl relative z-10">
         
@@ -68,11 +68,11 @@ export function HowItWorks() {
           transition={{ duration: 0.6 }}
           className="text-center mb-10 sm:mb-16"
         >
-          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-purple-200 dark:border-purple-800">
+          <span className="inline-block px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 text-xs sm:text-sm font-semibold mb-3 sm:mb-4 border border-amber-500/20">
             {t("Simple & Secure Process", "Simple & Secure Process")}
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3 sm:mb-4">
-            {t("How Homeland Recovery", "How Homeland Recovery")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-fuchsia-600">{t("Works", "Dey Work")}</span>
+            {t("How Homeland Recovery", "How Homeland Recovery")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600">{t("Works", "Dey Work")}</span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed px-2">
             {t(
@@ -99,7 +99,7 @@ export function HowItWorks() {
               viewport={{ once: true }}
               transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
               style={{ transformOrigin: "left center" }}
-              className="w-full h-full bg-gradient-to-r from-purple-500/20 via-fuchsia-500/50 to-purple-500/20 rounded-full"
+              className="w-full h-full bg-gradient-to-r from-amber-500/20 via-yellow-500/50 to-amber-500/20 rounded-full"
             />
             <div className="absolute inset-0 overflow-hidden rounded-full">
               <motion.div 
@@ -121,20 +121,20 @@ export function HowItWorks() {
               whileTap={{ scale: 0.98 }}
               className="group relative z-10"
             >
-              <div className="h-full bg-white dark:bg-slate-800/50 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 pt-10 border border-slate-200 dark:border-slate-700/50 shadow-sm hover:shadow-xl hover:shadow-purple-500/5 hover:border-purple-200 dark:hover:border-purple-800/50 transition-all duration-300">
+              <div className="h-full bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-8 pt-10 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 hover:border-amber-500/30 dark:hover:border-amber-500/30 transition-all duration-300">
                 
                 {/* Step Number Watermark - Mobile Optimized */}
-                <span className="absolute top-4 right-4 sm:top-6 sm:right-6 text-4xl sm:text-6xl font-black text-slate-100 dark:text-slate-800/50 select-none group-hover:text-purple-100 dark:group-hover:text-purple-900/20 transition-colors">
+                <span className="absolute top-4 right-4 sm:top-6 sm:right-6 text-4xl sm:text-6xl font-black text-slate-100 dark:text-slate-800/50 select-none group-hover:text-amber-100 dark:group-hover:text-amber-900/20 transition-colors">
                   {item.step}
                 </span>
 
                 {/* Icon Container - Mobile Optimized */}
-                <div className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-purple-500/30 mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center shadow-lg shadow-amber-500/30 mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                   {item.icon}
                 </div>
 
                 {/* Content - Mobile Optimized */}
-                <h3 className="relative z-10 text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors leading-tight">
+                <h3 className="relative z-10 text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors leading-tight">
                   {item.title}
                 </h3>
                 <p className="relative z-10 text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed pb-4">
@@ -143,8 +143,8 @@ export function HowItWorks() {
 
                 {/* Floating Metric Badge - Mobile Optimized */}
                 <div className="absolute -bottom-4 sm:-bottom-5 left-1/2 -translate-x-1/2 w-[95%] sm:w-[90%] opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto z-20">
-                  <div className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-purple-200 dark:border-purple-800/50 rounded-full shadow-lg shadow-purple-500/10">
-                    <item.metric.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600 dark:text-purple-400" />
+                  <div className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-amber-200 dark:border-amber-800 rounded-full shadow-lg shadow-amber-500/10">
+                    <item.metric.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-600 dark:text-amber-400" />
                     <span className="text-[10px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">
                       {item.metric.text}
                     </span>
@@ -156,15 +156,15 @@ export function HowItWorks() {
                     ========================================== */}
                 {item.hasDashboardPeek && (
                   <div className="absolute top-full left-0 right-0 mt-6 sm:mt-8 opacity-0 translate-y-4 scale-95 group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 transition-all duration-500 ease-out pointer-events-none group-hover:pointer-events-auto z-30">
-                    <div className="relative bg-slate-900/95 dark:bg-black/95 backdrop-blur-xl border border-purple-500/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-2xl shadow-purple-500/20 overflow-hidden">
+                    <div className="relative bg-slate-900/95 dark:bg-black/95 backdrop-blur-xl border border-amber-500/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-2xl shadow-amber-500/20 overflow-hidden">
                       {/* Top Glow */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
                       
                       {/* Dashboard Header */}
                       <div className="flex items-center justify-between mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-white/10">
                         <div className="flex items-center gap-1.5 sm:gap-2">
-                          <Radio className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-400 animate-pulse" />
-                          <span className="text-[9px] sm:text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+                          <Radio className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-400 animate-pulse" />
+                          <span className="text-[9px] sm:text-[10px] font-bold text-amber-400 uppercase tracking-wider">
                             {t("Live Tracking Preview", "Live Tracking Preview")}
                           </span>
                         </div>
@@ -200,13 +200,13 @@ export function HowItWorks() {
 
                         {/* Step 3 (Active) */}
                         <div className="relative flex items-center gap-2.5 sm:gap-3">
-                          <div className="relative z-10 flex items-center justify-center h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-cyan-500/20 border border-cyan-500">
-                            <div className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-cyan-400 animate-ping absolute" />
-                            <div className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-cyan-400 relative" />
+                          <div className="relative z-10 flex items-center justify-center h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-amber-500/20 border border-amber-500">
+                            <div className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-amber-400 animate-ping absolute" />
+                            <div className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full bg-amber-400 relative" />
                           </div>
                           <div>
-                            <p className="text-[10px] sm:text-xs font-bold text-cyan-300">{t("Agent Assigned", "Agent Assigned")}</p>
-                            <p className="text-[8px] sm:text-[10px] text-cyan-400/70 animate-pulse">{t("Investigating...", "E dey investigate...")}</p>
+                            <p className="text-[10px] sm:text-xs font-bold text-amber-300">{t("Agent Assigned", "Agent Assigned")}</p>
+                            <p className="text-[8px] sm:text-[10px] text-amber-400/70 animate-pulse">{t("Investigating...", "E dey investigate...")}</p>
                           </div>
                         </div>
                       </div>

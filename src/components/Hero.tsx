@@ -88,14 +88,15 @@ export function Hero() {
             <div className="p-1 sm:p-1.5 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full shadow-md shadow-amber-500/30">
               <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
             </div>
-            <span className="text-xs sm:text-sm font-semibold text-amber-900 whitespace-nowrap">
+            {/* ✅ MADE BOLDER */}
+            <span className="text-xs sm:text-sm font-bold text-amber-900 whitespace-nowrap">
               {t("Global Leaders in Secure Recovery", "The Number One Place for Secure Recovery")}
             </span>
           </div>
         </motion.div>
 
-        {/* Heading */}
-        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-extrabold tracking-tighter mb-4 md:mb-6 leading-[1.1]">
+        {/* Heading - ✅ MADE BOLDER (font-black) & Mobile Responsive */}
+        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter mb-4 md:mb-6 leading-[1.1]">
           <div className="overflow-hidden mb-1 md:mb-2">
             {line1.split("").map((char, i) => (
               <motion.span key={`l1-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 0.2 + i * 0.025 }} className="inline-block text-slate-900 drop-shadow-sm" style={{ display: 'inline-block' }}>
@@ -112,8 +113,8 @@ export function Hero() {
           </div>
         </h1>
 
-        {/* Subtitle */}
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.2 }} className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed px-2">
+        {/* Subtitle - ✅ MADE BOLDER & Darker for readability */}
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.2 }} className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-slate-800 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed px-2">
           {t("The secure, verified, and fastest way to recover your lost property and resolve disputes in Nigeria and across the globe.", "The most secure, verified, and fastest way to recover your lost property and solve any wahala for Nigeria and across the globe.")}
         </motion.p>
 
@@ -134,7 +135,8 @@ export function Hero() {
               className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-amber-50/50 border border-amber-200/30 rounded-full backdrop-blur-sm transition-all duration-300"
             >
               <badge.icon className="h-3 w-3 sm:h-4 sm:w-4 text-amber-600" />
-              <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-slate-700 whitespace-nowrap">
+              {/* ✅ MADE BOLDER */}
+              <span className="text-[10px] sm:text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">
                 {badge.label}
               </span>
             </motion.div>
@@ -156,18 +158,20 @@ export function Hero() {
                 value={trackInput}
                 onChange={(e) => setTrackInput(e.target.value)}
                 placeholder={t("Enter your HLRS Tracking ID (e.g., HLRS-2026-001)", "Enter your HLRS Tracking ID (e.g., HLRS-2026-001)")}
-                className="w-full pl-9 sm:pl-12 pr-4 py-3 sm:py-3.5 bg-transparent border-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 text-sm sm:text-base"
+                className="w-full pl-9 sm:pl-12 pr-4 py-3 sm:py-3.5 bg-transparent border-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 text-sm sm:text-base font-medium"
               />
             </div>
+            {/* ✅ MADE BOLDER */}
             <button 
               type="submit" 
-              className="flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 text-white font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-amber-500/30 text-sm sm:text-base whitespace-nowrap"
+              className="flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 text-white font-extrabold rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-amber-500/30 text-sm sm:text-base whitespace-nowrap"
             >
               {t("Track Now", "Track Am Now")}
               <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </form>
-          <p className="text-xs sm:text-sm text-slate-500 mt-2 sm:mt-3 flex items-center justify-center gap-1.5 px-2">
+          {/* ✅ MADE BOLDER & Darker */}
+          <p className="text-xs sm:text-sm font-semibold text-slate-700 mt-2 sm:mt-3 flex items-center justify-center gap-1.5 px-2">
             <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-600" />
             {t("Already have a Tracking ID? Enter it above to check your case status instantly.", "You get Tracking ID? Enter am above to check your case status sharp sharp.")}
           </p>
@@ -182,7 +186,8 @@ export function Hero() {
                   <div className={`p-2 sm:p-3.5 rounded-lg sm:rounded-xl mb-2 sm:mb-4 ${action.bgColor} transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}>
                     <action.icon className={`h-5 w-5 sm:h-8 sm:w-8 ${action.iconColor} transition-colors duration-300`} />
                   </div>
-                  <span className="text-xs sm:text-base md:text-lg font-bold text-slate-900 text-center transition-colors duration-300 group-hover:text-amber-700 leading-tight">{action.label}</span>
+                  {/* ✅ MADE BOLDER */}
+                  <span className="text-xs sm:text-base md:text-lg font-extrabold text-slate-900 text-center transition-colors duration-300 group-hover:text-amber-700 leading-tight">{action.label}</span>
                   <div className="mt-2 sm:mt-3 opacity-0 transform translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
                     <div className="h-1 w-6 sm:w-8 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full mx-auto shadow-[0_0_10px_rgba(217,169,56,0.5)]" />
                   </div>

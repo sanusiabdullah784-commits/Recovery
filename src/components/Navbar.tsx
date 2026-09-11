@@ -57,38 +57,38 @@ export function Navbar() {
           : "bg-transparent border-transparent"
       }`}
     >
-      <div className="w-full max-w-7xl mx-auto flex h-16 md:h-24 items-center justify-between px-3 md:px-6">
+      <div className="w-full max-w-7xl mx-auto flex h-24 md:h-28 items-center justify-between px-4 md:px-6">
         
-        {/* Brand with Mobile-Optimized Logo */}
-        <Link href="/" className="flex items-center gap-2 md:gap-3 shrink-0 min-w-0 group" onClick={() => setIsOpen(false)}>
+        {/* Brand with MASSIVE & ZOOMABLE Logo */}
+        <Link href="/" className="flex items-center gap-3 md:gap-4 shrink-0 min-w-0 group" onClick={() => setIsOpen(false)}>
           <Image
             src="/logo.png"
             alt="Homeland Recovery Services Ltd Logo"
-            width={120}
-            height={120}
-            className="w-10 h-10 md:w-20 md:h-20 object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300 flex-shrink-0"
+            width={160}
+            height={160}
+            className="w-16 h-16 md:w-24 md:h-24 object-contain drop-shadow-xl group-hover:scale-125 transition-transform duration-500 ease-out flex-shrink-0"
             priority
           />
           <div className="flex flex-col leading-tight min-w-0">
-            <span className={`font-extrabold text-sm md:text-xl transition-colors truncate ${isScrolled ? "text-slate-900" : "text-slate-900"}`}>
+            <span className={`font-black text-lg md:text-2xl transition-colors truncate ${isScrolled ? "text-slate-900" : "text-slate-900"}`}>
               Homeland Recovery
             </span>
-            <span className={`font-bold text-[10px] md:text-sm hidden sm:block transition-colors truncate ${isScrolled ? "text-amber-600" : "text-amber-600"}`}>
+            <span className={`font-extrabold text-xs md:text-base hidden sm:block transition-colors truncate ${isScrolled ? "text-amber-600" : "text-amber-600"}`}>
               Services Ltd
             </span>
           </div>
         </Link>
 
-        {/* Desktop Links - Strictly hidden on mobile */}
+        {/* Desktop Links - All buttons kept exactly as they were */}
         <div className="hidden lg:flex items-center gap-4 xl:gap-6">
           {navLinks.map((link) => (
             <Link 
               key={link.href} 
               href={link.href} 
-              className={`relative px-2 py-2 text-sm xl:text-base font-semibold transition-colors group whitespace-nowrap ${
+              className={`relative px-2 py-2 text-sm xl:text-base font-bold transition-colors group whitespace-nowrap ${
                 isScrolled 
-                  ? "text-slate-600 hover:text-amber-600" 
-                  : "text-slate-700 hover:text-amber-600"
+                  ? "text-slate-700 hover:text-amber-600" 
+                  : "text-slate-800 hover:text-amber-600"
               }`}
             >
               {link.label}
@@ -97,7 +97,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Actions - Theme toggle removed */}
+        {/* Desktop Actions - Renamed back to English/Pidgin */}
         <div className="hidden lg:flex items-center gap-2 xl:gap-4 shrink-0">
           <button 
             onClick={() => setLang(lang === "en" ? "pid" : "en")}
@@ -108,13 +108,13 @@ export function Navbar() {
             }`}
           >
             <Globe className="h-4 w-4 xl:h-5 xl:w-5 transition-colors text-slate-600" />
-            <span className="font-bold transition-colors text-slate-700">
+            <span className="font-extrabold transition-colors text-slate-800">
               {lang === "en" ? "English" : "Pidgin"}
             </span>
           </button>
         </div>
 
-        {/* Mobile Toggles - Theme toggle removed */}
+        {/* Mobile Toggles - Renamed back to English/Pidgin */}
         <div className="flex items-center gap-2 lg:hidden shrink-0">
           <button 
             onClick={() => setLang(lang === "en" ? "pid" : "en")}
@@ -125,7 +125,7 @@ export function Navbar() {
             }`}
           >
             <Globe className="h-4 w-4 text-slate-600" />
-            <span className="text-xs font-bold text-slate-700">
+            <span className="text-xs font-extrabold text-slate-800">
               {lang === "en" ? "English" : "Pidgin"}
             </span>
           </button>
@@ -134,7 +134,7 @@ export function Navbar() {
             variant="ghost" 
             size="icon" 
             onClick={() => setIsOpen(!isOpen)}
-            className="w-10 h-10 shrink-0"
+            className="w-11 h-11 shrink-0"
           >
             <AnimatePresence mode="wait">
               {isOpen ? (
@@ -151,7 +151,7 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu - Optimized padding and text sizes */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div 
@@ -162,7 +162,7 @@ export function Navbar() {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-slate-200 overflow-hidden"
           >
-            <div className="w-full max-w-7xl mx-auto px-4 py-4 flex flex-col gap-2">
+            <div className="w-full max-w-7xl mx-auto px-5 py-6 flex flex-col gap-3">
               {navLinks.map((link, index) => (
                 <motion.div
                   key={link.href}
@@ -173,10 +173,10 @@ export function Navbar() {
                   <Link 
                     href={link.href} 
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-between px-4 py-3 text-slate-700 font-semibold text-base hover:bg-amber-50 rounded-xl transition-colors group"
+                    className="flex items-center justify-between px-5 py-4 text-slate-800 font-bold text-lg hover:bg-amber-50 rounded-xl transition-colors group"
                   >
                     <span>{link.label}</span>
-                    <span className="text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity text-lg">→</span>
+                    <span className="text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity text-xl">→</span>
                   </Link>
                 </motion.div>
               ))}
@@ -186,17 +186,17 @@ export function Navbar() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.3 }}
-                className="mt-2 pt-4 border-t border-slate-200"
+                className="mt-3 pt-5 border-t border-slate-200"
               >
                 <button 
                   onClick={() => setLang(lang === "en" ? "pid" : "en")}
-                  className="flex items-center justify-between w-full px-4 py-3 text-slate-700 font-semibold text-base hover:bg-amber-50 rounded-xl transition-colors"
+                  className="flex items-center justify-between w-full px-5 py-4 text-slate-800 font-bold text-lg hover:bg-amber-50 rounded-xl transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-amber-600" />
+                  <span className="flex items-center gap-3">
+                    <Globe className="h-6 w-6 text-amber-600" />
                     {lang === "en" ? "Switch to Pidgin" : "Switch to English"}
                   </span>
-                  <span className="text-xs font-bold bg-amber-100 text-amber-600 px-3 py-1.5 rounded-md">
+                  <span className="text-sm font-extrabold bg-amber-100 text-amber-700 px-4 py-2 rounded-lg">
                     {lang === "en" ? "English → Pidgin" : "Pidgin → English"}
                   </span>
                 </button>

@@ -57,29 +57,22 @@ export function Navbar() {
           : "bg-transparent border-transparent"
       }`}
     >
-      <div className="w-full max-w-7xl mx-auto flex h-24 md:h-28 items-center justify-between px-4 md:px-6">
+      {/* ✅ INCREASED HEIGHT: h-32 mobile, h-40 desktop to fit the HUGE logo */}
+      <div className="w-full max-w-7xl mx-auto flex h-32 md:h-40 items-center justify-between px-4 md:px-6">
         
-        {/* Brand with MASSIVE & ZOOMABLE Logo */}
-        <Link href="/" className="flex items-center gap-3 md:gap-4 shrink-0 min-w-0 group" onClick={() => setIsOpen(false)}>
+        {/* ✅ EVEN LARGER LOGO */}
+        <Link href="/" className="flex items-center shrink-0 group py-2" onClick={() => setIsOpen(false)}>
           <Image
             src="/logo.png"
             alt="Homeland Recovery Services Ltd Logo"
-            width={160}
-            height={160}
-            className="w-16 h-16 md:w-24 md:h-24 object-contain drop-shadow-xl group-hover:scale-125 transition-transform duration-500 ease-out flex-shrink-0"
+            width={280}
+            height={280}
+            className="w-24 h-24 md:w-[180px] md:h-[180px] object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-500 ease-out flex-shrink-0"
             priority
           />
-          <div className="flex flex-col leading-tight min-w-0">
-            <span className={`font-black text-lg md:text-2xl transition-colors truncate ${isScrolled ? "text-slate-900" : "text-slate-900"}`}>
-              Homeland Recovery
-            </span>
-            <span className={`font-extrabold text-xs md:text-base hidden sm:block transition-colors truncate ${isScrolled ? "text-amber-600" : "text-amber-600"}`}>
-              Services Ltd
-            </span>
-          </div>
         </Link>
 
-        {/* Desktop Links - All buttons kept exactly as they were */}
+        {/* Desktop Links */}
         <div className="hidden lg:flex items-center gap-4 xl:gap-6">
           {navLinks.map((link) => (
             <Link 
@@ -97,7 +90,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Actions - Renamed back to English/Pidgin */}
+        {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-2 xl:gap-4 shrink-0">
           <button 
             onClick={() => setLang(lang === "en" ? "pid" : "en")}
@@ -114,7 +107,7 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Toggles - Renamed back to English/Pidgin */}
+        {/* Mobile Toggles */}
         <div className="flex items-center gap-2 lg:hidden shrink-0">
           <button 
             onClick={() => setLang(lang === "en" ? "pid" : "en")}
@@ -181,7 +174,6 @@ export function Navbar() {
                 </motion.div>
               ))}
               
-              {/* Mobile Language Toggle inside menu */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}

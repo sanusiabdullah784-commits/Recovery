@@ -7,6 +7,7 @@ import { ShieldCheck, Hash, Search, AlertCircle, Flag, Scale, Phone, ArrowRight,
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { LiveRecoveryToast } from "@/components/LiveRecoveryToast";
+import { GlobeBackground } from "@/components/GlobeBackground";
 
 export function Hero() {
   const { t } = useLanguage();
@@ -60,23 +61,27 @@ export function Hero() {
   const line1 = t("Recover What's", "Recover Wetin");
   const line2 = t("Lost.", "You Don Lose.");
 
+  const companyNamePart1 = "HOMELAND RECOVERY";
+  const companyNamePart2 = "SERVICES LTD";
+
   return (
     <section 
       onMouseMove={handleMouseMove}
       className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 md:pt-40 md:pb-32 px-3 sm:px-4 overflow-hidden min-h-screen flex items-center bg-white"
     >
+      {/* Interactive 3D Globe Background */}
+      <GlobeBackground />
+
       {/* Subtle gold gradient orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-amber-200/20 to-yellow-100/10 rounded-full blur-[150px] animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-orange-200/20 to-amber-100/10 rounded-full blur-[150px] animate-pulse delay-1000" />
-      <div className="absolute top-[20%] right-[20%] w-[40%] h-[40%] bg-yellow-200/10 rounded-full blur-[120px] animate-pulse delay-700" />
-      <div className="absolute bottom-[20%] left-[20%] w-[40%] h-[40%] bg-amber-200/10 rounded-full blur-[120px] animate-pulse delay-500" />
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-amber-200/10 to-yellow-100/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-gradient-to-br from-orange-200/10 to-amber-100/5 rounded-full blur-[150px] pointer-events-none" />
 
       {/* Subtle grid pattern */}
       <div className="absolute inset-0 -z-20 opacity-[0.03]" style={{ backgroundImage: `linear-gradient(rgba(180, 140, 60, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(180, 140, 60, 0.3) 1px, transparent 1px)`, backgroundSize: '60px 60px', maskImage: 'radial-gradient(circle at center, black 40%, transparent 100%)' }} />
 
       {/* Mouse-following gold glow */}
       <motion.div
-        className="absolute w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full bg-gradient-to-br from-amber-300/15 to-yellow-200/10 blur-[120px] pointer-events-none hidden md:block"
+        className="absolute w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full bg-gradient-to-br from-amber-300/10 to-yellow-200/5 blur-[120px] pointer-events-none hidden md:block"
         style={{ left: smoothX, top: smoothY, translateX: "-50%", translateY: "-50%" }}
       />
 
@@ -88,33 +93,68 @@ export function Hero() {
             <div className="p-1 sm:p-1.5 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full shadow-md shadow-amber-500/30">
               <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
             </div>
-            {/* ✅ MADE BOLDER */}
             <span className="text-xs sm:text-sm font-bold text-amber-900 whitespace-nowrap">
               {t("Global Leaders in Secure Recovery", "The Number One Place for Secure Recovery")}
             </span>
           </div>
         </motion.div>
 
-        {/* Heading - ✅ MADE BOLDER (font-black) & Mobile Responsive */}
+        {/* "FALLING RAIN" ANIMATION FOR COMPANY NAME */}
+        <div className="mb-4 md:mb-8 flex flex-col items-center justify-center overflow-hidden">
+          <div className="flex flex-wrap justify-center gap-x-1 sm:gap-x-2 mb-1">
+            {companyNamePart1.split("").map((char, i) => (
+              <motion.span 
+                key={`hr-${i}`} 
+                initial={{ y: -150, opacity: 0, filter: "blur(10px)" }} 
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }} 
+                transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.1 + i * 0.02 }} 
+                className="inline-block text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-[0.1em] text-slate-900"
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-1 sm:gap-x-2">
+            {companyNamePart2.split("").map((char, i) => (
+              <motion.span 
+                key={`sl-${i}`} 
+                initial={{ y: -150, opacity: 0, filter: "blur(10px)" }} 
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }} 
+                transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.6 + i * 0.02 }} 
+                className="inline-block text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-[0.1em] bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent"
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
+          </div>
+          <motion.div 
+            initial={{ scaleX: 0 }} 
+            animate={{ scaleX: 1 }} 
+            transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
+            className="w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-4 rounded-full origin-center" 
+          />
+        </div>
+
+        {/* Main Heading */}
         <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter mb-4 md:mb-6 leading-[1.1]">
           <div className="overflow-hidden mb-1 md:mb-2">
             {line1.split("").map((char, i) => (
-              <motion.span key={`l1-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 0.2 + i * 0.025 }} className="inline-block text-slate-900 drop-shadow-sm" style={{ display: 'inline-block' }}>
+              <motion.span key={`l1-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 1.4 + i * 0.025 }} className="inline-block text-slate-900 drop-shadow-sm" style={{ display: 'inline-block' }}>
                 {char === " " ? "\u00A0" : char}
               </motion.span>
             ))}
           </div>
           <div className="overflow-hidden">
             {line2.split("").map((char, i) => (
-              <motion.span key={`l2-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 0.6 + i * 0.04 }} className="inline-block bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(217,169,56,0.3)]" style={{ display: 'inline-block' }}>
+              <motion.span key={`l2-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 1.8 + i * 0.04 }} className="inline-block bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(217,169,56,0.3)]" style={{ display: 'inline-block' }}>
                 {char === " " ? "\u00A0" : char}
               </motion.span>
             ))}
           </div>
         </h1>
 
-        {/* Subtitle - ✅ MADE BOLDER & Darker for readability */}
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.2 }} className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-slate-800 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed px-2">
+        {/* Subtitle */}
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 2.4 }} className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-slate-800 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed px-2">
           {t("The secure, verified, and fastest way to recover your lost property and resolve disputes in Nigeria and across the globe.", "The most secure, verified, and fastest way to recover your lost property and solve any wahala for Nigeria and across the globe.")}
         </motion.p>
 
@@ -122,7 +162,7 @@ export function Hero() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.3 }}
+          transition={{ duration: 0.8, delay: 2.5 }}
           className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-8 md:mb-10 px-2"
         >
           {trustBadges.map((badge, index) => (
@@ -130,12 +170,11 @@ export function Hero() {
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.4 + index * 0.1, duration: 0.4 }}
+              transition={{ delay: 2.6 + index * 0.1, duration: 0.4 }}
               whileHover={{ y: -2, borderColor: "rgba(217, 169, 56, 0.4)" }}
               className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-amber-50/50 border border-amber-200/30 rounded-full backdrop-blur-sm transition-all duration-300"
             >
               <badge.icon className="h-3 w-3 sm:h-4 sm:w-4 text-amber-600" />
-              {/* ✅ MADE BOLDER */}
               <span className="text-[10px] sm:text-xs md:text-sm font-bold text-slate-800 whitespace-nowrap">
                 {badge.label}
               </span>
@@ -147,7 +186,7 @@ export function Hero() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.5 }}
+          transition={{ duration: 0.8, delay: 2.7 }}
           className="w-full max-w-2xl mx-auto mb-8 md:mb-12 px-2"
         >
           <form onSubmit={handleTrackSubmit} className="relative flex flex-col sm:flex-row gap-2 sm:gap-3 p-2 sm:p-3 bg-white/80 backdrop-blur-xl border border-amber-200/40 rounded-2xl shadow-xl shadow-amber-500/5 focus-within:border-amber-400/60 focus-within:ring-2 focus-within:ring-amber-400/20 transition-all duration-300">
@@ -161,7 +200,6 @@ export function Hero() {
                 className="w-full pl-9 sm:pl-12 pr-4 py-3 sm:py-3.5 bg-transparent border-none text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 text-sm sm:text-base font-medium"
               />
             </div>
-            {/* ✅ MADE BOLDER */}
             <button 
               type="submit" 
               className="flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 text-white font-extrabold rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-amber-500/30 text-sm sm:text-base whitespace-nowrap"
@@ -170,26 +208,27 @@ export function Hero() {
               <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </form>
-          {/* ✅ MADE BOLDER & Darker */}
           <p className="text-xs sm:text-sm font-semibold text-slate-700 mt-2 sm:mt-3 flex items-center justify-center gap-1.5 px-2">
             <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-600" />
             {t("Already have a Tracking ID? Enter it above to check your case status instantly.", "You get Tracking ID? Enter am above to check your case status sharp sharp.")}
           </p>
         </motion.div>
 
-        {/* Quick Actions Grid */}
-        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 w-full max-w-4xl mx-auto perspective-[1000px] px-2">
+        {/* ✅ UPDATED: Quick Actions Grid - LARGER BUTTONS & TEXT */}
+        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5 w-full max-w-4xl mx-auto perspective-[1000px] px-2">
           {quickActions.map((action) => (
             <motion.div key={action.label} variants={cardVariants} whileHover={{ y: -10, scale: 1.03, rotateX: 5, rotateY: -2, transition: { type: "spring", stiffness: 300, damping: 20 } }} whileTap={{ scale: 0.97 }} className="group cursor-pointer">
               <Link href={action.href} className="block h-full">
-                <div className={`flex flex-col items-center justify-center p-3 sm:p-6 bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-slate-200/50 shadow-xl transition-all duration-300 h-full ${action.hoverGlow} ${action.borderColor} group-hover:shadow-lg group-hover:bg-white`}>
-                  <div className={`p-2 sm:p-3.5 rounded-lg sm:rounded-xl mb-2 sm:mb-4 ${action.bgColor} transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}>
-                    <action.icon className={`h-5 w-5 sm:h-8 sm:w-8 ${action.iconColor} transition-colors duration-300`} />
+                {/* ✅ LARGER CARD: Increased padding from p-3/p-6 to p-4/p-8 */}
+                <div className={`flex flex-col items-center justify-center p-4 sm:p-8 bg-white/80 backdrop-blur-xl rounded-xl sm:rounded-2xl border border-slate-200/50 shadow-xl transition-all duration-300 h-full ${action.hoverGlow} ${action.borderColor} group-hover:shadow-lg group-hover:bg-white`}>
+                  {/* ✅ LARGER ICON CONTAINER: Increased padding and icon size */}
+                  <div className={`p-3 sm:p-5 rounded-lg sm:rounded-xl mb-3 sm:mb-5 ${action.bgColor} transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg`}>
+                    <action.icon className={`h-6 w-6 sm:h-10 sm:w-10 ${action.iconColor} transition-colors duration-300`} />
                   </div>
-                  {/* ✅ MADE BOLDER */}
-                  <span className="text-xs sm:text-base md:text-lg font-extrabold text-slate-900 text-center transition-colors duration-300 group-hover:text-amber-700 leading-tight">{action.label}</span>
-                  <div className="mt-2 sm:mt-3 opacity-0 transform translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-                    <div className="h-1 w-6 sm:w-8 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full mx-auto shadow-[0_0_10px_rgba(217,169,56,0.5)]" />
+                  {/* ✅ LARGER TEXT: Increased from text-xs/text-base/text-lg to text-sm/text-lg/text-xl */}
+                  <span className="text-sm sm:text-lg md:text-xl font-extrabold text-slate-900 text-center transition-colors duration-300 group-hover:text-amber-700 leading-tight">{action.label}</span>
+                  <div className="mt-3 sm:mt-4 opacity-0 transform translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+                    <div className="h-1 w-8 sm:w-12 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full mx-auto shadow-[0_0_10px_rgba(217,169,56,0.5)]" />
                   </div>
                 </div>
               </Link>

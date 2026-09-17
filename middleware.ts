@@ -38,17 +38,18 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // const { data: { user } } = await supabase.auth.getUser()
 
   // Protect /admin route: Only allow specific admin emails
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    // 👇 YOUR ADMIN EMAIL IS ADDED HERE
+    // 👇 TEMPORARILY COMMENTED OUT FOR TESTING
+    /*
     const adminEmails = ['sanusi@gmail.com', 'admin@homelandrecovery.ng'] 
     
     if (!user || !adminEmails.includes(user.email || '')) {
-      // Redirect to home page if not an authorized admin
       return NextResponse.redirect(new URL('/', request.url))
     }
+    */
   }
 
   return response

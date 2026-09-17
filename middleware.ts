@@ -40,10 +40,9 @@ export async function middleware(request: NextRequest) {
 
   // const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect /admin route: Only allow specific admin emails
+  // Protect /admin route: Temporarily disabled for testing
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    // 👇 TEMPORARILY COMMENTED OUT FOR TESTING
-    /*
+    /* 
     const adminEmails = ['sanusi@gmail.com', 'admin@homelandrecovery.ng'] 
     
     if (!user || !adminEmails.includes(user.email || '')) {

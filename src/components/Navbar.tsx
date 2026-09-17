@@ -37,11 +37,11 @@ export function Navbar() {
   }, [isOpen]);
 
   const navLinks = [
-    { href: "/track", label: lang === "en" ? "Track ID" : "Track ID" },
+    { href: "/track", label: "Track ID" },
     { href: "/report", label: lang === "en" ? "Found/Report" : "Find/Report" },
     { href: "/complaints", label: lang === "en" ? "Lost/Complaint" : "Lost/Complain" },
     { href: "/legal-services", label: lang === "en" ? "Legal Services" : "Legal Work" },
-    { href: "/flagged", label: lang === "en" ? "Flagged Items" : "Flagged Items" },
+    { href: "/flagged", label: "Flagged Items" },
     { href: "/contact", label: lang === "en" ? "Contact" : "Contact Us" },
   ];
 
@@ -57,10 +57,9 @@ export function Navbar() {
           : "bg-transparent border-transparent"
       }`}
     >
-      {/* ✅ INCREASED HEIGHT: h-32 mobile, h-40 desktop to fit the HUGE logo */}
       <div className="w-full max-w-7xl mx-auto flex h-32 md:h-40 items-center justify-between px-4 md:px-6">
         
-        {/* ✅ EVEN LARGER LOGO */}
+        {/* Logo */}
         <Link href="/" className="flex items-center shrink-0 group py-2" onClick={() => setIsOpen(false)}>
           <Image
             src="/logo.png"
@@ -90,39 +89,32 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-2 xl:gap-4 shrink-0">
-          <button 
-            onClick={() => setLang(lang === "en" ? "pid" : "en")}
-            className={`flex items-center gap-2 px-3 xl:px-4 py-2 xl:py-2.5 rounded-full transition-all border text-sm ${
-              isScrolled 
-                ? "bg-slate-100 hover:bg-amber-100 border-transparent hover:border-amber-200" 
-                : "bg-slate-100/50 hover:bg-amber-100 border-slate-200 hover:border-amber-200 backdrop-blur-sm"
-            }`}
-          >
-            <Globe className="h-4 w-4 xl:h-5 xl:w-5 transition-colors text-slate-600" />
-            <span className="font-extrabold transition-colors text-slate-800">
-              {lang === "en" ? "English" : "Pidgin"}
-            </span>
-          </button>
+        {/* ✅ NEW: Desktop Language Dropdown */}
+        <div className="hidden lg:block shrink-0">
+          <div className="relative">
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as any)}
+              className="appearance-none bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm font-bold rounded-full py-2.5 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all cursor-pointer hover:bg-amber-50 dark:hover:bg-slate-700"
+            >
+              <option value="en">🇬🇧 English</option>
+              <option value="pid">🇳🇬 Pidgin</option>
+              <option value="fr">🇫🇷 French</option>
+              <option value="de">🇩🇪 German</option>
+              <option value="zh">🇨🇳 Chinese</option>
+              <option value="ar">🇸🇦 Arabic</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* Mobile Toggles */}
         <div className="flex items-center gap-2 lg:hidden shrink-0">
-          <button 
-            onClick={() => setLang(lang === "en" ? "pid" : "en")}
-            className={`flex items-center gap-1.5 px-2.5 py-2 rounded-full border transition-all ${
-              isScrolled 
-                ? "bg-slate-100 border-slate-200" 
-                : "bg-slate-100/50 border-slate-200 backdrop-blur-sm"
-            }`}
-          >
-            <Globe className="h-4 w-4 text-slate-600" />
-            <span className="text-xs font-extrabold text-slate-800">
-              {lang === "en" ? "English" : "Pidgin"}
-            </span>
-          </button>
-          
           <Button 
             variant="ghost" 
             size="icon" 
@@ -174,24 +166,33 @@ export function Navbar() {
                 </motion.div>
               ))}
               
+              {/* ✅ NEW: Mobile Language Dropdown */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.3 }}
                 className="mt-3 pt-5 border-t border-slate-200"
               >
-                <button 
-                  onClick={() => setLang(lang === "en" ? "pid" : "en")}
-                  className="flex items-center justify-between w-full px-5 py-4 text-slate-800 font-bold text-lg hover:bg-amber-50 rounded-xl transition-colors"
-                >
-                  <span className="flex items-center gap-3">
-                    <Globe className="h-6 w-6 text-amber-600" />
-                    {lang === "en" ? "Switch to Pidgin" : "Switch to English"}
-                  </span>
-                  <span className="text-sm font-extrabold bg-amber-100 text-amber-700 px-4 py-2 rounded-lg">
-                    {lang === "en" ? "English → Pidgin" : "Pidgin → English"}
-                  </span>
-                </button>
+                <div className="relative w-full">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 pointer-events-none z-10" />
+                  <select
+                    value={lang}
+                    onChange={(e) => setLang(e.target.value as any)}
+                    className="appearance-none w-full bg-white border border-slate-200 text-slate-800 text-sm font-bold rounded-xl py-3 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all cursor-pointer"
+                  >
+                    <option value="en">🇬🇧 English</option>
+                    <option value="pid">🇳🇬 Pidgin</option>
+                    <option value="fr">🇫🇷 French</option>
+                    <option value="de">🇩🇪 German</option>
+                    <option value="zh">🇨🇳 Chinese</option>
+                    <option value="ar">🇸🇦 Arabic</option>
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                    <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
               </motion.div>
             </div>
           </motion.div>

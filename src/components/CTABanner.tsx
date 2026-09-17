@@ -96,9 +96,10 @@ export function CTABanner() {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed px-2"
             >
+              {/* ✅ UPDATED: Changed "Homeland Recovery" to "Homeland Recovery Services Ltd." */}
               {t(
-                "Join thousands of Nigerians who trust Homeland Recovery to safely reunite them with their lost property. It only takes 2 minutes to report.",
-                "Join thousands of Nigerians wey dey trust Homeland Recovery to safely reunite them with their lost property. E just take 2 minutes to report."
+                "Join thousands of Nigerians who trust Homeland Recovery Services Ltd. to safely reunite them with their lost property. It only takes 2 minutes to report.",
+                "Join thousands of Nigerians wey dey trust Homeland Recovery Services Ltd. to safely reunite dem with their lost property. E just take 2 minutes to report."
               )}
             </motion.p>
 

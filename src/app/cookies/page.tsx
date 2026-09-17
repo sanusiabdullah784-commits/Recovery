@@ -9,11 +9,11 @@ export default function CookiesPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-16 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white dark:from-slate-900 dark:to-slate-950 py-16 px-4">
       <div className="container mx-auto max-w-4xl">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span className="text-sm font-medium">Back to Home</span>
@@ -21,7 +21,7 @@ export default function CookiesPage() {
 
         <div className="mb-12 pb-8 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-lg shadow-lg shadow-cyan-500/20">
+            <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg shadow-lg shadow-amber-500/20">
               <Shield className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
@@ -77,7 +77,7 @@ export default function CookiesPage() {
               Essential Cookies
             </h4>
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-              These cookies are necessary for the website to function properly. They enable basic functions like page navigation and access to secure areas of the website.
+              These cookies are necessary for the website and our Services to function properly. They enable basic functions like page navigation and access to secure areas of the website.
             </p>
 
             <h4 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">
@@ -91,7 +91,7 @@ export default function CookiesPage() {
               Preference Cookies
             </h4>
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-              These cookies allow the website to remember choices you make (such as your language preference) and provide enhanced, personalized features.
+              These cookies allow the website to remember choices you make (such as your language preference) and provide enhanced, personalized features for our Services.
             </p>
           </section>
 
@@ -108,7 +108,7 @@ export default function CookiesPage() {
               <li>Do Not Track: Some browsers have a Do Not Track feature.</li>
             </ul>
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed mt-4">
-              Please note that disabling cookies may affect the functionality of our website.
+              Please note that disabling cookies may affect the functionality of our website and certain features of our Services.
             </p>
           </section>
 
@@ -118,7 +118,7 @@ export default function CookiesPage() {
             </h3>
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
               If you have questions about our use of cookies, please contact us at{" "}
-              <a href="mailto:homelandrecoveryservicesltd@gmail.com" className="text-cyan-600 dark:text-cyan-400 hover:underline">
+              <a href="mailto:homelandrecoveryservicesltd@gmail.com" className="text-amber-600 dark:text-amber-400 hover:underline">
                 homelandrecoveryservicesltd@gmail.com
               </a>
             </p>

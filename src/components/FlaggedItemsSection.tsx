@@ -2,16 +2,50 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PackageCheck, Search, MapPin, Calendar, FileText, Info, ShieldCheck, X, ArrowRight } from "lucide-react";
+import { PackageCheck, Search, MapPin, Calendar, FileText, Info, ShieldCheck, X, ArrowRight, Flag, User, Mail, Phone, Loader2, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase Client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export function FlaggedItemsSection() {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
   
-  // Modal State
+  // Modal & Form State
   const [claimingItem, setClaimingItem] = useState<any>(null);
+  const [claimForm, setClaimForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    proofDetails: ""
+  });
+  const [isSubmittingClaim, setIsSubmittingClaim] = useState(false);
+  const [claimSuccess, setClaimSuccess] = useState(false);
+
+  // Registration Fee Categories (Excluding Legal Services)
+  const feeCategories = [
+    {
+      title: t("Category A", "Category A"),
+      desc: t("Items worth ₦20,000 and below", "Items worth ₦20,000 and below"),
+      price: "₦3,000"
+    },
+    {
+      title: t("Category B", "Category B"),
+      desc: t("Items worth ₦20,000 to ₦100,000", "Items worth ₦20,000 to ₦100,000"),
+      price: "₦5,000"
+    },
+    {
+      title: t("Category C", "Category C"),
+      desc: t("Missing Persons", "Missing Persons"),
+      price: "₦5,000"
+    }
+  ];
 
   // Mock Unclaimed/Secured Items Data with Vault Status
   const flaggedItems = [
@@ -81,25 +115,51 @@ export function FlaggedItemsSection() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Ready for Pickup": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-      case "Awaiting Verification": return "bg-amber-500/20 text-amber-300 border-amber-500/30";
-      case "Pending Documentation": return "bg-blue-500/20 text-blue-300 border-blue-500/30";
-      default: return "bg-slate-500/20 text-slate-300 border-slate-500/30";
+      case "Ready for Pickup": return "bg-emerald-500/10 text-emerald-700 border-emerald-500/30";
+      case "Awaiting Verification": return "bg-amber-500/10 text-amber-700 border-amber-500/30";
+      case "Pending Documentation": return "bg-blue-500/10 text-blue-700 border-blue-500/30";
+      default: return "bg-slate-500/10 text-slate-700 border-slate-500/30";
+    }
+  };
+
+  // ✅ NEW: Handle Claim Submission to Supabase
+  const handleClaimSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingClaim(true);
+
+    try {
+      const { error } = await supabase.from("item_claims").insert({
+        tracking_id: claimingItem.id,
+        full_name: claimForm.fullName,
+        email: claimForm.email,
+        phone: claimForm.phone,
+        proof_details: claimForm.proofDetails,
+        status: "pending"
+      });
+
+      if (error) throw error;
+
+      setClaimSuccess(true);
+    } catch (error) {
+      console.error("Error submitting claim:", error);
+      alert(t("Failed to submit claim. Please try again.", "E fail to submit claim. Abeg try again."));
+    } finally {
+      setIsSubmittingClaim(false);
     }
   };
 
   return (
-    <section className="relative min-h-screen pt-24 sm:pt-32 pb-16 sm:pb-24 px-3 sm:px-4 overflow-hidden bg-gradient-to-br from-[#C2185B] to-[#E0F2FE]">
+    <section className="relative min-h-screen pt-24 sm:pt-32 pb-16 sm:pb-24 px-3 sm:px-4 overflow-hidden bg-[#D9B8FF]">
       
-      {/* Calm, Secure Ambient Orbs adapted for new gradient */}
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-white/10 rounded-full blur-[150px] animate-pulse" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#E0F2FE]/40 rounded-full blur-[150px] animate-pulse delay-1000" />
+      {/* Ambient Orbs matching the purple theme */}
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-purple-400/20 rounded-full blur-[150px] animate-pulse" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-fuchsia-400/20 rounded-full blur-[150px] animate-pulse delay-1000" />
       
-      {/* Grid Pattern */}
+      {/* Grid Pattern matching the light theme */}
       <div 
-        className="absolute inset-0 -z-10 opacity-[0.06]" 
+        className="absolute inset-0 -z-10 opacity-[0.04]" 
         style={{ 
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)`, 
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)`, 
           backgroundSize: '60px 60px',
           maskImage: 'radial-gradient(circle at center, black 40%, transparent 100%)'
         }} 
@@ -107,22 +167,54 @@ export function FlaggedItemsSection() {
 
       <div className="container mx-auto max-w-7xl relative z-10">
         
-        {/* Header */}
+        {/* HEADER */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-10 sm:mb-12 px-2"
+          className="text-center mb-6 sm:mb-8 px-2"
         >
-          <div className="inline-flex items-center justify-center p-3 rounded-full mb-6 border border-white/20 bg-white/10 backdrop-blur-md shadow-lg shadow-black/10">
-            <PackageCheck className="h-6 w-6 text-white" />
+          <div className="inline-flex items-center justify-center p-3 rounded-full mb-6 border border-purple-200/50 bg-purple-50/50 backdrop-blur-md shadow-lg shadow-purple-500/10">
+            <PackageCheck className="h-6 w-6 text-purple-600" />
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 text-white drop-shadow-sm">
-            {t("Unclaimed & Secured Items", "Unclaimed & Secured Items")}
+          
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 text-slate-900 drop-shadow-sm">
+            {t("CLAIM YOUR ITEM", "CLAIM YOUR ITEM")}
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
+          
+          <p className="text-base sm:text-lg md:text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed mb-6">
             {t("Items safely received and stored in our secure warehouse awaiting their rightful owners. Search below to see if your lost property is here.", "Items wey dem safely receive and keep for our secure warehouse, wey dey wait for their rightful owners. Search below to see if your lost property dey here.")}
+          </p>
+
+          <Link href="/flagged" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-600/20 text-purple-700 font-bold rounded-xl transition-all duration-300 hover:scale-105 backdrop-blur-md group">
+            <Flag className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
+            {t("Flag an Item", "Flag an Item")}
+          </Link>
+        </motion.div>
+
+        {/* Registration Fee Categories */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-8 sm:mb-10 px-2 sm:px-0"
+        >
+          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 text-center">
+            {t("Registration Fee Categories for Claims", "Registration Fee Categories for Claims")}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {feeCategories.map((cat, index) => (
+              <div key={index} className="p-4 sm:p-5 rounded-2xl bg-white/60 backdrop-blur-md border border-slate-200/50 text-center hover:bg-white/80 transition-colors shadow-sm">
+                <h4 className="font-bold text-purple-600 mb-2 text-lg">{cat.title}</h4>
+                <p className="text-sm text-slate-600 mb-3">{cat.desc}</p>
+                <p className="text-2xl sm:text-3xl font-extrabold text-slate-900">{cat.price}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-center text-slate-500 mt-4 italic">
+            {t("* Legal Services fees are not applicable here as this section is strictly for claiming lost items.", "* Legal Services fees no dey here because this section na strictly for claiming lost items.")}
           </p>
         </motion.div>
 
@@ -132,14 +224,25 @@ export function FlaggedItemsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-8 sm:mb-10 p-4 sm:p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-start gap-4 mx-2 sm:mx-0"
+          className="mb-8 sm:mb-10 p-4 sm:p-5 rounded-2xl bg-white/60 backdrop-blur-md border border-amber-500/30 flex flex-col sm:flex-row items-start gap-4 mx-2 sm:mx-0 shadow-sm"
         >
-          <Info className="h-5 w-5 sm:h-6 sm:w-6 text-white flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="text-white font-bold mb-1 text-sm sm:text-base">{t("How to Claim Your Item", "How to Claim Your Item")}</h3>
-            <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
-              {t("To claim an item, you must provide valid proof of ownership (e.g., purchase receipt, serial number, or detailed description) along with a government-issued ID. All claims are thoroughly verified by our team to prevent fraud.", "To claim any item, you must provide valid proof of ownership (e.g., purchase receipt, serial number, or detailed description) along with a government-issued ID. We go thoroughly verify all claims to prevent fraud.")}
-            </p>
+          <Info className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div className="space-y-3">
+            <h3 className="text-slate-900 font-bold text-sm sm:text-base">{t("Important Claim Information", "Important Claim Information")}</h3>
+            <ul className="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-amber-600 mt-1">•</span>
+                <span>{t("To claim an item, you must provide valid proof of ownership (e.g., purchase receipt, serial number, or detailed description) along with a government-issued ID. All claims are thoroughly verified to prevent fraud.", "To claim any item, you must provide valid proof of ownership along with a government-issued ID. We go thoroughly verify all claims to prevent fraud.")}</span>
+              </li>
+              <li className="flex items-start gap-2 text-amber-700 font-semibold">
+                <span className="mt-1">•</span>
+                <span>{t("Pay registration fee to claim your item if you haven't registered. Items are charged based on the value during collection.", "Pay registration fee to claim your item if you no don register. Dem go charge based on the value of the item during collection.")}</span>
+              </li>
+              <li className="flex items-start gap-2 text-emerald-700 font-semibold">
+                <span className="mt-1">•</span>
+                <span>{t("Registered before on same item? No need to pay. Log in with your reference ID to make a claim.", "You don register for this same item before? No need to pay again. Just log in with your reference ID to make your claim.")}</span>
+              </li>
+            </ul>
           </div>
         </motion.div>
 
@@ -152,13 +255,13 @@ export function FlaggedItemsSection() {
           className="flex flex-col md:flex-row gap-4 mb-8 sm:mb-10 px-2 sm:px-0"
         >
           <div className="relative flex-grow">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
             <input 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t("Search by item name or location...", "Search by item name or location...")}
-              className="w-full pl-12 pr-4 py-3.5 bg-slate-900/40 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/50 focus:outline-none focus:border-white/50 focus:ring-2 focus:ring-white/20 transition-all text-sm sm:text-base" 
+              className="w-full pl-12 pr-4 py-3.5 bg-white/60 backdrop-blur-md border border-slate-200/50 rounded-xl text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm sm:text-base shadow-sm" 
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
@@ -168,8 +271,8 @@ export function FlaggedItemsSection() {
                 onClick={() => setSelectedFilter(filter)}
                 className={`px-4 sm:px-5 py-3 sm:py-3.5 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all border ${
                   selectedFilter === filter 
-                    ? "bg-white text-[#C2185B] border-white shadow-lg" 
-                    : "bg-white/10 text-white/80 border-white/20 hover:bg-white/20 hover:text-white"
+                    ? "bg-purple-600 text-white border-purple-600 shadow-lg" 
+                    : "bg-white/60 text-slate-700 border-slate-200/50 hover:bg-white/80 hover:text-slate-900"
                 }`}
               >
                 {filter}
@@ -193,57 +296,57 @@ export function FlaggedItemsSection() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.3 }}
                 whileHover={{ y: -5 }}
-                className="group relative flex flex-col bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-white/30 hover:bg-slate-900/70 transition-all duration-300"
+                className="group relative flex flex-col bg-white/70 backdrop-blur-xl border border-slate-200/50 rounded-2xl sm:rounded-3xl overflow-hidden hover:border-purple-300 hover:bg-white/90 transition-all duration-300 shadow-sm"
               >
-                {/* Top Image/Icon Area */}
-                <div className="relative h-36 sm:h-40 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center border-b border-white/5">
-                  {/* Status Badge */}
+                <div className="relative h-36 sm:h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center border-b border-slate-200/50">
                   <div className="absolute top-4 left-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-md ${getStatusColor(item.status)}`}>
                       {item.status}
                     </span>
                   </div>
                   
-                  {/* High-Security Vault Status Indicator */}
-                  <div className="absolute bottom-3 left-4 right-4 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-950/60 backdrop-blur-md border border-emerald-500/20">
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-900/80 backdrop-blur-md border border-emerald-500/20">
                     <div className="relative flex h-2 w-2 flex-shrink-0">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </div>
                     <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-[10px] sm:text-xs font-semibold text-emerald-300/90 uppercase tracking-wider truncate">
+                    <span className="text-[10px] sm:text-xs font-semibold text-emerald-300 uppercase tracking-wider truncate">
                       {item.vaultStatus}
                     </span>
                   </div>
 
-                  <PackageCheck className="h-14 w-14 sm:h-16 sm:w-16 text-slate-600 group-hover:text-white/20 transition-colors duration-500" />
+                  <PackageCheck className="h-14 w-14 sm:h-16 sm:w-16 text-slate-400 group-hover:text-purple-600/40 transition-colors duration-500" />
                 </div>
 
-                {/* Content */}
                 <div className="p-5 sm:p-6 flex flex-col flex-grow">
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-base sm:text-lg font-bold text-white leading-tight group-hover:text-pink-300 transition-colors">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight group-hover:text-purple-600 transition-colors">
                       {item.title}
                     </h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-300 mb-4 line-clamp-2 flex-grow">
+                  <p className="text-xs sm:text-sm text-slate-600 mb-4 line-clamp-2 flex-grow">
                     {item.desc}
                   </p>
                   
                   <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
                       <MapPin className="h-3.5 w-3.5" />
                       <span>{item.location}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
                       <Calendar className="h-3.5 w-3.5" />
                       <span>{t("Received on", "Received on")} {item.date}</span>
                     </div>
                   </div>
 
                   <button 
-                    onClick={() => setClaimingItem(item)}
-                    className="w-full py-3 bg-gradient-to-r from-[#C2185B] to-pink-600 hover:from-pink-600 hover:to-[#C2185B] text-white font-bold rounded-xl shadow-lg shadow-black/20 transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-xl group-hover:shadow-pink-500/20 text-sm sm:text-base"
+                    onClick={() => {
+                      setClaimingItem(item);
+                      setClaimSuccess(false);
+                      setClaimForm({ fullName: "", email: "", phone: "", proofDetails: "" });
+                    }}
+                    className="w-full py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-xl group-hover:shadow-purple-500/30 text-sm sm:text-base"
                   >
                     <FileText className="h-4 w-4" />
                     {t("Claim This Item", "Claim This Item")}
@@ -260,18 +363,18 @@ export function FlaggedItemsSection() {
             animate={{ opacity: 1 }} 
             className="text-center py-16 sm:py-20 px-4"
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/10 mb-4 sm:mb-6">
-              <Search className="h-8 w-8 sm:h-10 sm:w-10 text-white/50" />
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-purple-100 mb-4 sm:mb-6">
+              <Search className="h-8 w-8 sm:h-10 sm:w-10 text-purple-600" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{t("No items found", "No items found")}</h3>
-            <p className="text-sm sm:text-base text-white/60">{t("Try adjusting your search or filter.", "Try adjust your search or filter.")}</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">{t("No items found", "No items found")}</h3>
+            <p className="text-sm sm:text-base text-slate-600">{t("Try adjusting your search or filter.", "Try adjust your search or filter.")}</p>
           </motion.div>
         )}
 
       </div>
 
       {/* ==========================================
-          SLEEK "START CLAIM" VERIFICATION MODAL
+          SLEEK "START CLAIM" VERIFICATION MODAL (NOW A WORKING FORM)
           ========================================== */}
       <AnimatePresence>
         {claimingItem && (
@@ -288,61 +391,109 @@ export function FlaggedItemsSection() {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-md bg-slate-900/95 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-slate-900/95 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
             >
-              {/* Decorative Glow */}
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#C2185B]/20 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-[#E0F2FE]/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-fuchsia-600/10 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Close Button */}
               <button onClick={() => setClaimingItem(null)} className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all z-10">
                 <X className="h-5 w-5" />
               </button>
 
-              {/* Header */}
               <div className="relative z-10 text-center mb-6">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#C2185B] to-pink-600 mb-4 shadow-lg shadow-pink-500/20">
-                  <ShieldCheck className="h-7 w-7 text-white" />
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-600 mb-4 shadow-lg shadow-purple-500/20">
+                  {claimSuccess ? <CheckCircle2 className="h-7 w-7 text-white" /> : <ShieldCheck className="h-7 w-7 text-white" />}
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{t("Secure Claim Verification", "Secure Claim Verification")}</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                  {claimSuccess ? t("Claim Submitted Successfully!", "Claim Submitted Successfully!") : t("Secure Claim Verification", "Secure Claim Verification")}
+                </h3>
                 <p className="text-sm text-slate-400 px-2">
-                  {t("To claim", "To claim")} <span className="text-pink-400 font-semibold">{claimingItem.title}</span>, {t("please complete the following steps.", "abeg complete the steps wey dey below.")}
+                  {claimSuccess 
+                    ? t("Our team will review your proof of ownership and contact you shortly.", "Our team go review your proof of ownership and contact you shortly.")
+                    : `${t("To claim", "To claim")} ${claimingItem.title}, ${t("please provide your details and proof of ownership.", "abeg provide your details and proof of ownership.")}`
+                  }
                 </p>
               </div>
 
-              {/* Steps */}
-              <div className="relative z-10 space-y-3 sm:space-y-4 mb-8">
-                {[
-                  { icon: <FileText className="h-5 w-5" />, title: t("Upload Government ID", "Upload Government ID"), desc: t("Valid ID card, passport, or driver's license.", "Valid ID card, passport, or driver's license.") },
-                  { icon: <PackageCheck className="h-5 w-5" />, title: t("Proof of Ownership", "Proof of Ownership"), desc: t("Receipt, serial number, or detailed photos.", "Receipt, serial number, or detailed photos.") },
-                  { icon: <Calendar className="h-5 w-5" />, title: t("Schedule Pickup", "Schedule Pickup"), desc: t("Choose a secure time to collect your item.", "Choose a secure time to collect your item.") }
-                ].map((step, i) => (
-                  <motion.div 
-                    key={i}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + (i * 0.1) }}
-                    className="flex items-start gap-4 p-3 sm:p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#C2185B]/20 border border-[#C2185B]/30 flex items-center justify-center text-pink-400">
-                      {step.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-bold text-white mb-0.5">{t("Step", "Step")} {i + 1}: {step.title}</h4>
-                      <p className="text-xs text-slate-400 leading-relaxed">{step.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              {!claimSuccess ? (
+                <form onSubmit={handleClaimSubmit} className="relative z-10 space-y-4 mb-6">
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      required
+                      type="text"
+                      value={claimForm.fullName}
+                      onChange={(e) => setClaimForm({ ...claimForm, fullName: e.target.value })}
+                      placeholder={t("Full Name", "Full Name")}
+                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      required
+                      type="email"
+                      value={claimForm.email}
+                      onChange={(e) => setClaimForm({ ...claimForm, email: e.target.value })}
+                      placeholder={t("Email Address", "Email Address")}
+                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      required
+                      type="tel"
+                      value={claimForm.phone}
+                      onChange={(e) => setClaimForm({ ...claimForm, phone: e.target.value })}
+                      placeholder={t("Phone Number", "Phone Number")}
+                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
+                    />
+                  </div>
+                  <div className="relative">
+                    <FileText className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                    <textarea
+                      required
+                      rows={3}
+                      value={claimForm.proofDetails}
+                      onChange={(e) => setClaimForm({ ...claimForm, proofDetails: e.target.value })}
+                      placeholder={t("Describe your proof of ownership (e.g., serial number, receipt details)...", "Describe your proof of ownership (e.g., serial number, receipt details)...")}
+                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm resize-none"
+                    />
+                  </div>
 
-              {/* Action Button */}
-              <button 
-                onClick={() => { setClaimingItem(null); /* Handle claim logic */ }}
-                className="relative z-10 w-full py-3.5 bg-gradient-to-r from-[#C2185B] to-pink-600 hover:from-pink-600 hover:to-[#C2185B] text-white font-bold rounded-xl shadow-lg shadow-black/20 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base group"
-              >
-                {t("Start Verification Process", "Start Verification Process")} 
-                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+                  <button 
+                    type="submit"
+                    disabled={isSubmittingClaim}
+                    className="relative z-10 w-full py-3.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white font-bold rounded-xl shadow-lg shadow-black/20 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base group disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isSubmittingClaim ? (
+                      <>
+                        <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                        {t("Submitting Claim...", "E dey submit...")}
+                      </>
+                    ) : (
+                      <>
+                        {t("Start Verification Process", "Start Verification Process")} 
+                        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              ) : (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }}
+                  className="relative z-10 text-center"
+                >
+                  <button 
+                    onClick={() => { setClaimingItem(null); setClaimSuccess(false); setClaimForm({ fullName: "", email: "", phone: "", proofDetails: "" }); }}
+                    className="w-full py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/10 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base"
+                  >
+                    {t("Close", "Close")}
+                  </button>
+                </motion.div>
+              )}
             </motion.div>
           </motion.div>
         )}

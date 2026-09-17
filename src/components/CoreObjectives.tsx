@@ -88,7 +88,7 @@ export function CoreObjectives() {
             {t("Our", "Our")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600">{t("Core Objectives", "Core Objectives")}</span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed px-2">
-            {t("As registered with the Corporate Affairs Commission of Nigeria, we are officially mandated to provide comprehensive recovery and legal services.", "As we don register with the Corporate Affairs Commission of Nigeria, we get official mandate to provide comprehensive recovery and legal services.")}
+            {t("As a registered company with the Corporate Affairs Commission of Nigeria, we are officially mandated to provide comprehensive recovery and legal services.", "As a registered company with the Corporate Affairs Commission of Nigeria, we are officially mandated to provide comprehensive recovery and legal services.")}
           </p>
         </motion.div>
 

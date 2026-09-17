@@ -9,12 +9,12 @@ export default function PrivacyPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900 py-16 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-white dark:from-slate-900 dark:to-slate-950 py-16 px-4">
       <div className="container mx-auto max-w-4xl">
         {/* Back Button */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 mb-8 transition-colors"
+          className="inline-flex items-center gap-2 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span className="text-sm font-medium">Back to Home</span>
@@ -23,7 +23,7 @@ export default function PrivacyPage() {
         {/* Header */}
         <div className="mb-12 pb-8 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-lg shadow-lg shadow-cyan-500/20">
+            <div className="p-2 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-lg shadow-lg shadow-amber-500/20">
               <Shield className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
             </ul>
 
             <h4 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">
-              Service and Case Information
+              Services and Case Information
             </h4>
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
               Where necessary for the provision of our Services, we may collect information relating to your recovery request, claim, transaction, documentation, correspondence and other relevant circumstances.
@@ -303,7 +303,7 @@ export default function PrivacyPage() {
             </h3>
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
               We use cookies and similar technologies as described in our{" "}
-              <Link href="/cookies" className="text-cyan-600 dark:text-cyan-400 hover:underline">
+              <Link href="/cookies" className="text-amber-600 dark:text-amber-400 hover:underline">
                 Cookie Policy
               </Link>
               .
@@ -331,28 +331,28 @@ export default function PrivacyPage() {
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
               For privacy-related enquiries or requests, contact:
             </p>
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+            <div className="bg-amber-50/50 dark:bg-slate-800/50 rounded-xl p-6 border border-amber-200/50 dark:border-slate-700">
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <Mail className="h-5 w-5 text-cyan-600 dark:text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <Mail className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">Email</p>
-                    <a href="mailto:homelandrecoveryservicesltd@gmail.com" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
+                    <a href="mailto:homelandrecoveryservicesltd@gmail.com" className="text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                       homelandrecoveryservicesltd@gmail.com
                     </a>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 text-cyan-600 dark:text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <Phone className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">Telephone</p>
-                    <a href="tel:+2349065173333" className="text-slate-600 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
+                    <a href="tel:+2349065173333" className="text-slate-600 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                       +234 906 517 3333
                     </a>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-cyan-600 dark:text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <MapPin className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">Address</p>
                     <p className="text-slate-600 dark:text-slate-400">

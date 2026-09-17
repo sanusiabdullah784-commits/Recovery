@@ -3,7 +3,7 @@
 export function Marquee() {
   const row1 = [
     "🛡️ Secure & Verified Recovery",
-    "⚖️ Expert Legal Mediation",
+    "⚖️ Expert Legal Services",
     "🌍 Global Network, Local Expertise",
     "⚡ Fast & Transparent Process",
     "🤝 Trusted by Thousands",
@@ -12,7 +12,6 @@ export function Marquee() {
   const row2 = [
     " 24/7 Customer Support",
     "🏆 98% Success Rate",
-    "🔒 100% Confidential",
     "🚀 Nationwide Coverage",
     "💼 Professional Asset Tracing",
   ];

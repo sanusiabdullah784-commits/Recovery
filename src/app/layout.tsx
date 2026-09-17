@@ -4,11 +4,13 @@ import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { AIChatWidget } from "@/components/AIChatWidget";
+import { LanguageDirection } from "@/components/LanguageDirection"; // ✅ NEW: Handles RTL for Arabic
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
 
 export const metadata: Metadata = {
-  title: "Homeland Recovery Service Ltd | Global Leaders in Secure Recovery",
+  // ✅ UPDATED: Added "Services" to match your full company name
+  title: "Homeland Recovery Services Ltd | Global Leaders in Secure Recovery",
   description: "The secure, verified, and fastest way to recover your lost property and resolve disputes in Nigeria and across the globe.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -28,11 +30,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* ADDED: bg-white to force pure white background permanently */}
       <body className={`${jakarta.variable} font-sans antialiased overflow-x-hidden bg-white`}>
         
-        {/* ✅ REMOVED: ThemeProvider wrapper to disable dark mode entirely */}
         <LanguageProvider>
+          {/* ✅ NEW: This automatically flips the site to Right-to-Left when Arabic is chosen */}
+          <LanguageDirection />
           {children}
         </LanguageProvider>
         

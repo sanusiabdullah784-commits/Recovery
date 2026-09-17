@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, Lock, Mail, User, Package, MapPin, Calendar, 
   Upload, AlertCircle, CheckCircle, ArrowRight, LogIn, UserPlus, Scale,
-  FileText, X, Mic, MicOff, ChevronRight, ChevronLeft, Check, CreditCard, Loader2
+  FileText, X, Mic, MicOff, ChevronRight, ChevronLeft, Check, CreditCard, Loader2,
+  Eye, EyeOff 
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { createClient } from "@supabase/supabase-js";
@@ -70,6 +71,13 @@ export function ComplaintSection() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  // Password Visibility & Forgot Password State
+  const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+
   // Form State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -116,7 +124,6 @@ export function ComplaintSection() {
     };
     checkSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
@@ -136,9 +143,6 @@ export function ComplaintSection() {
     return newId;
   };
 
-  // ==========================================
-  // REAL SUPABASE AUTH HANDLER
-  // ==========================================
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
@@ -155,16 +159,24 @@ export function ComplaintSection() {
         });
         if (error) throw error;
         if (data.user) {
-          setUser(data.user);
-          setFullName(authFullName);
-          setEmail(authEmail);
+          setAuthError("Account created! Please check your email to confirm your account before logging in.");
+          setAuthMode("login");
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email: authEmail,
           password: authPassword,
         });
-        if (error) throw error;
+        
+        if (error) {
+          if (error.message.includes("Email not confirmed")) {
+            setAuthError("Email not confirmed. Please check your inbox for the confirmation link, or click 'Resend Confirmation' below.");
+          } else {
+            setAuthError(error.message);
+          }
+          throw error;
+        }
+        
         if (data.user) {
           setUser(data.user);
           if (data.user.user_metadata?.full_name) setFullName(data.user.user_metadata.full_name);
@@ -172,9 +184,46 @@ export function ComplaintSection() {
         }
       }
     } catch (error: any) {
-      setAuthError(error.message);
+      // Error is already set above
     } finally {
       setAuthLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!authEmail) {
+      setAuthError("Please enter your email address first.");
+      return;
+    }
+    setAuthLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: authEmail,
+      });
+      if (error) throw error;
+      setAuthError("Confirmation email resent! Please check your inbox and spam folder.");
+    } catch (error: any) {
+      setAuthError(error.message || "Failed to resend confirmation email.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setResetMessage(null);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail || authEmail, {
+        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined,
+      });
+      if (error) throw error;
+      setResetMessage("Password reset link sent! Please check your email.");
+    } catch (error: any) {
+      setResetMessage(error.message || "Failed to send reset link.");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -198,9 +247,6 @@ export function ComplaintSection() {
     setTrackingId("");
   };
 
-  // ==========================================
-  // SUPABASE SAVE FUNCTION
-  // ==========================================
   const saveComplaintToSupabase = async (ref: string, tId: string, method: string) => {
     setIsSaving(true);
     let fileUrl = null;
@@ -216,14 +262,11 @@ export function ComplaintSection() {
       if (!uploadError) {
         const { data: { publicUrl } } = supabase.storage.from('complaint-evidence').getPublicUrl(fileName);
         fileUrl = publicUrl;
-        console.log("✅ File uploaded successfully:", publicUrl);
-      } else {
-        console.warn("⚠️ File upload failed:", uploadError.message);
       }
     }
 
-    const { data: insertData, error: dbError } = await supabase.from('complaints').insert({
-      user_id: user?.id || null, // ✅ Links complaint to the logged-in user
+    const { error: dbError } = await supabase.from('complaints').insert({
+      user_id: user?.id || null,
       tracking_id: tId,
       category: selectedCategory,
       item_type: selectedItem,
@@ -245,7 +288,6 @@ export function ComplaintSection() {
       alert(`⚠️ Payment was successful, but there was an error saving your details.\n\nError: ${dbError.message}\n\nTracking ID: ${tId}`);
       setIsSaving(false);
     } else {
-      console.log("✅ Successfully saved to Supabase:", insertData);
       setIsSaving(false);
       setIsSuccess(true);
     }
@@ -361,9 +403,7 @@ export function ComplaintSection() {
         logo: "https://your-logo-url.com/logo.png",
       },
       callback: (response: any) => {
-        console.log("✅ Flutterwave Callback Response:", response);
         const isSuccess = response.status === "successful" || response.status === "success" || response.transaction_id;
-
         if (isSuccess) {
           const ref = response.transaction_id || response.tx_ref || "FLW-SUCCESS";
           const tId = generateTrackingId();
@@ -388,19 +428,11 @@ export function ComplaintSection() {
     const amount = categories.find(c => c.id === selectedCategory)?.priceNum || 0;
     
     (window as any).paypal.Buttons({
-      style: {
-        layout: 'vertical',
-        color: 'gold',
-        shape: 'rect',
-        label: 'paypal'
-      },
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
       createOrder: (data: any, actions: any) => {
         return actions.order.create({
           purchase_units: [{
-            amount: {
-              value: (amount / 750).toFixed(2),
-              currency_code: 'USD'
-            },
+            amount: { value: (amount / 750).toFixed(2), currency_code: 'USD' },
             description: `Homeland Recovery - ${selectedCategory}`
           }]
         });
@@ -412,9 +444,7 @@ export function ComplaintSection() {
           saveComplaintToSupabase(details.id, tId, 'paypal');
         });
       },
-      onCancel: () => {
-        setIsProcessingPayment(false);
-      },
+      onCancel: () => { setIsProcessingPayment(false); },
       onError: (err: any) => {
         console.error("PayPal error:", err);
         setIsProcessingPayment(false);
@@ -503,42 +533,154 @@ export function ComplaintSection() {
                 <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className={`text-sm sm:text-base ${textMuted} mb-8 px-2`}>
                   {t("Please login or create an account to lodge your complaint securely.", "Abeg login or create account make you fit lodge your complaint securely.")}
                 </motion.p>
+                
                 <div className="relative flex w-full bg-purple-900/5 rounded-xl p-1 mb-8 border border-purple-200/50">
                   <motion.div layoutId="active-auth-tab" className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-purple-600 to-fuchsia-600 rounded-lg shadow-md" animate={{ left: authMode === "login" ? "4px" : "calc(50% + 0px)" }} transition={{ type: "spring", stiffness: 300, damping: 30 }} />
-                  <button onClick={() => { setAuthMode("login"); setAuthError(null); }} className={`relative z-10 flex-1 py-2.5 text-sm font-bold transition-colors ${authMode === "login" ? "text-white" : "text-slate-500 hover:text-slate-900"}`}>{t("Login", "Login")}</button>
-                  <button onClick={() => { setAuthMode("signup"); setAuthError(null); }} className={`relative z-10 flex-1 py-2.5 text-sm font-bold transition-colors ${authMode === "signup" ? "text-white" : "text-slate-500 hover:text-slate-900"}`}>{t("Sign Up", "Sign Up")}</button>
+                  <button onClick={() => { setAuthMode("login"); setAuthError(null); setShowForgotPassword(false); }} className={`relative z-10 flex-1 py-2.5 text-sm font-bold transition-colors ${authMode === "login" ? "text-white" : "text-slate-500 hover:text-slate-900"}`}>{t("Login", "Login")}</button>
+                  <button onClick={() => { setAuthMode("signup"); setAuthError(null); setShowForgotPassword(false); }} className={`relative z-10 flex-1 py-2.5 text-sm font-bold transition-colors ${authMode === "signup" ? "text-white" : "text-slate-500 hover:text-slate-900"}`}>{t("Sign Up", "Sign Up")}</button>
                 </div>
                 
-                <motion.form key={authMode} initial={{ opacity: 0, x: authMode === "login" ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} onSubmit={handleAuth} className="w-full space-y-4 text-left px-2 sm:px-0">
-                  {authError && (
-                    <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500 text-center bg-red-50 p-2 rounded-lg border border-red-200">
-                      {authError}
-                    </motion.p>
-                  )}
-                  
-                  {authMode === "signup" && (
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                      <input required type="text" value={authFullName} onChange={(e) => setAuthFullName(e.target.value)} placeholder={t("Full Name", "Full Name")} className={`w-full pl-12 pr-4 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} placeholder:text-slate-400 focus:outline-none transition-all text-sm sm:text-base`} />
+                {showForgotPassword ? (
+                  <motion.form 
+                    key="forgot-password" 
+                    initial={{ opacity: 0, x: 20 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    exit={{ opacity: 0, x: -20 }} 
+                    transition={{ duration: 0.3 }} 
+                    onSubmit={handleForgotPassword} 
+                    className="w-full space-y-4 text-left px-2 sm:px-0"
+                  >
+                    <div className="text-center mb-4">
+                      <h3 className={`text-lg font-bold ${textMain}`}>Reset Password</h3>
+                      <p className={`text-sm ${textMuted}`}>Enter your email to receive a reset link.</p>
                     </div>
-                  )}
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <input required type="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder={t("Email Address", "Email Address")} className={`w-full pl-12 pr-4 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} placeholder:text-slate-400 focus:outline-none transition-all text-sm sm:text-base`} />
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                    <input required type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder={t("Password", "Password")} className={`w-full pl-12 pr-4 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} placeholder:text-slate-400 focus:outline-none transition-all text-sm sm:text-base`} />
-                  </div>
-                  <button type="submit" disabled={authLoading} className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4 text-sm sm:text-base">
-                    {authLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (authMode === "login" ? <LogIn className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />)}
-                    {authLoading ? t("Processing...", "E dey process...") : (authMode === "login" ? t("Login to Continue", "Login to Continue") : t("Create Account", "Create Account"))}
-                  </button>
-                </motion.form>
+                    
+                    {resetMessage && (
+                      <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className={`text-xs text-center p-3 rounded-lg border ${resetMessage.includes("sent") ? "text-emerald-600 bg-emerald-50 border-emerald-200" : "text-red-500 bg-red-50 border-red-200"}`}>
+                        {resetMessage}
+                      </motion.p>
+                    )}
+
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                      <input 
+                        required 
+                        type="email" 
+                        value={resetEmail || authEmail} 
+                        onChange={(e) => setResetEmail(e.target.value)} 
+                        placeholder={t("Email Address", "Email Address")} 
+                        className={`w-full pl-12 pr-4 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} placeholder:text-slate-400 focus:outline-none transition-all text-sm sm:text-base`} 
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      disabled={resetLoading} 
+                      className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base"
+                    >
+                      {resetLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Send Reset Link"}
+                    </button>
+
+                    <button 
+                      type="button" 
+                      onClick={() => { setShowForgotPassword(false); setResetMessage(null); setResetEmail(""); }} 
+                      className="w-full py-3 text-sm font-semibold text-slate-500 hover:text-purple-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" /> Back to Login
+                    </button>
+                  </motion.form>
+                ) : (
+                  <motion.form 
+                    key={authMode} 
+                    initial={{ opacity: 0, x: authMode === "login" ? -20 : 20 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    transition={{ duration: 0.3 }} 
+                    onSubmit={handleAuth} 
+                    className="w-full space-y-4 text-left px-2 sm:px-0"
+                  >
+                    {authError && (
+                      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-center p-3 rounded-lg border bg-red-50 border-red-200">
+                        <p className="text-red-600 mb-2">{authError}</p>
+                        {authError.includes("Email not confirmed") && (
+                          <button 
+                            type="button" 
+                            onClick={handleResendConfirmation}
+                            disabled={authLoading}
+                            className="text-xs font-bold text-purple-600 hover:text-purple-800 underline disabled:opacity-50 flex items-center justify-center gap-1 mx-auto"
+                          >
+                            {authLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Mail className="h-3 w-3" />}
+                            Resend Confirmation Email
+                          </button>
+                        )}
+                      </motion.div>
+                    )}
+                    
+                    {authMode === "signup" && (
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                        <input required type="text" value={authFullName} onChange={(e) => setAuthFullName(e.target.value)} placeholder={t("Full Name", "Full Name")} className={`w-full pl-12 pr-4 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} placeholder:text-slate-400 focus:outline-none transition-all text-sm sm:text-base`} />
+                      </div>
+                    )}
+                    
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                      <input required type="email" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder={t("Email Address", "Email Address")} className={`w-full pl-12 pr-4 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} placeholder:text-slate-400 focus:outline-none transition-all text-sm sm:text-base`} />
+                    </div>
+                    
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                      <input 
+                        required 
+                        type={showPassword ? "text" : "password"} 
+                        value={authPassword} 
+                        onChange={(e) => setAuthPassword(e.target.value)} 
+                        placeholder={t("Password", "Password")} 
+                        className={`w-full pl-12 pr-12 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} placeholder:text-slate-400 focus:outline-none transition-all text-sm sm:text-base`} 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
+
+                    {authMode === "login" && (
+                      <div className="text-right">
+                        <button 
+                          type="button" 
+                          onClick={() => setShowForgotPassword(true)} 
+                          className="text-xs font-semibold text-purple-600 hover:text-purple-800 transition-colors"
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                    )}
+                    
+                    <button type="submit" disabled={authLoading} className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4 text-sm sm:text-base">
+                      {authLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (authMode === "login" ? <LogIn className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />)}
+                      {authLoading ? t("Processing...", "E dey process...") : (authMode === "login" ? t("Login to Continue", "Login to Continue") : t("Create Account", "Create Account"))}
+                    </button>
+                  </motion.form>
+                )}
               </div>
             </motion.div>
           ) : (
             <motion.div key="complaint-form" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }} transition={{ duration: 0.6, type: "spring", stiffness: 100 }} className={`relative overflow-hidden rounded-2xl sm:rounded-[2rem] border ${glassBorder} ${glassBg} backdrop-blur-2xl shadow-2xl shadow-purple-900/10 p-6 sm:p-8 md:p-10`}>
+              
+              {/* ✅ ADDED: Sign Out button so you can easily test the login screen again */}
+              <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
+                <button 
+                  onClick={handleSignOut}
+                  className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-red-600 bg-white/80 hover:bg-red-50 border border-slate-200 hover:border-red-200 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full transition-all duration-300"
+                >
+                  <LogIn className="h-3.5 w-3.5 sm:h-4 sm:w-4 rotate-180" />
+                  Sign Out
+                </button>
+              </div>
+
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-white/60 rounded-full blur-[100px] pointer-events-none" />
               <div className="relative z-10">
                 
@@ -611,7 +753,8 @@ export function ComplaintSection() {
                             <div className="inline-flex items-center justify-center p-3 bg-amber-100 rounded-full mb-4 border border-amber-200">
                               <AlertCircle className="h-6 w-6 text-amber-600" />
                             </div>
-                            <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-3 ${textMain}`}>{t("Select Category & Fee", "Select Category & Fee")}</h2>
+                            {/* ✅ UPDATED: Changed "Select Category & Fee" to "Select Category & Registration Fee" */}
+                            <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-3 ${textMain}`}>{t("Select Category & Registration Fee", "Select Category & Registration Fee")}</h2>
                             <p className={`${textMuted} max-w-xl mx-auto text-sm sm:text-base`}>{t("Choose the category that best matches your complaint.", "Choose the category wey best match your complaint.")}</p>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -654,7 +797,7 @@ export function ComplaintSection() {
                               <select required value={selectedItem} onChange={(e) => setSelectedItem(e.target.value)} className={`w-full px-4 py-3.5 ${inputBg} border ${inputBorder} rounded-xl ${textMain} focus:outline-none transition-all appearance-none text-sm sm:text-base`}>
                                 <option value="" disabled className="bg-white">{t("-- Choose from list --", "-- Choose from list --")}</option>
                                 {selectedCategory && {
-                                  A: ["Phone Charger", "Earphones", "Wallet", "Keys", "Umbrella", "Water Bottle", "Small Bag", "ID Card", "Calculator", "Flash Drive", "Other"],
+                                  A: ["Phone Charger", "Earphones", "Wallet", "Keys", "Umbrella", "Sim Card", "Small Bag", "ID Card", "Calculator", "Flash Drive", "Other"],
                                   B: ["Smartphone", "Laptop", "Tablet", "Smartwatch", "Bicycle", "Jewelry", "Camera", "Designer Handbag", "Shoes", "Gaming Console", "Other"],
                                   C: ["Child", "Teenager", "Adult", "Elderly Person", "Pet (Dog/Cat)", "Other"],
                                   D: ["Litigation", "Arbitration", "Mediation", "Negotiation", "Online Dispute Resolution (ODR)", "Other"]

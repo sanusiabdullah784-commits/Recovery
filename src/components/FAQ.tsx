@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, HelpCircle, MessageCircle, Search, X, Package, CreditCard, Scale, SearchCheck, Globe, Mail, ArrowRight } from "lucide-react";
+import { ChevronDown, HelpCircle, MessageCircle, Search, X, Package, CreditCard, Scale, SearchCheck, Globe, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -36,7 +36,7 @@ export function FAQ() {
     {
       category: "legal" as Category,
       question: t("What happens if my item or case is not resolved?", "Wetin go happen if my item or case no resolve?"),
-      answer: t("If our agents are unable to locate your item or resolve the dispute within the agreed timeframe, our legal team will review the case for alternative resolutions. We pride ourselves on a 98% success rate and will work tirelessly until a conclusion is reached.", "If our agents no fit locate your item or resolve the dispute within the agreed time, our legal team go review the case for other solutions. We get 98% success rate and we go work tireless until we reach conclusion.")
+      answer: t("If our agents are unable to locate your item or resolve the dispute within the agreed timeframe, its will be kept in view. We placed ourselves on a 98% success rate and will work tirelessly until a conclusion is reached.", "If our agents no fit locate your item or resolve the dispute within the agreed time, . We get 98% success rate and we go work tireless until we reach conclusion.")
     },
     {
       category: "general" as Category,
@@ -227,7 +227,7 @@ export function FAQ() {
         </motion.div>
 
         {/* ==========================================
-            PREMIUM CTA CARD - Mobile Optimized
+            PREMIUM CTA CARD - Mobile Optimized (WhatsApp Only)
             ========================================== */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -259,29 +259,17 @@ export function FAQ() {
               {t("Our legal experts and support team are standing by 24/7 to assist you with your specific case.", "Our legal experts and support team dey stand by 24/7 to assist you with your specific case.")}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md px-2 sm:px-0">
-              <Link href="https://wa.me/2349136931832" target="_blank" rel="noopener noreferrer" className="w-full">
-                <motion.button
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-white text-amber-700 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
-                >
-                  <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                  {t("Chat on WhatsApp", "Chat on WhatsApp")}
-                </motion.button>
-              </Link>
-              
-              <Link href="mailto:homelandrecoveryservicesltd@gmail.com" className="w-full">
-                <motion.button
-                  whileHover={{ scale: 1.03, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/30 hover:bg-white/20 transition-all duration-300 text-sm sm:text-base"
-                >
-                  <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
-                  {t("Send an Email", "Send an Email")}
-                </motion.button>
-              </Link>
-            </div>
+            {/* ✅ SINGLE WHATSAPP BUTTON - Centered and perfectly sized */}
+            <a href="https://wa.me/2349136931832" target="_blank" rel="noopener noreferrer" className="w-full max-w-md mx-auto px-2 sm:px-0 block">
+              <motion.button
+                whileHover={{ scale: 1.03, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 sm:px-8 sm:py-4 bg-white text-amber-700 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm sm:text-base"
+              >
+                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                {t("Chat on WhatsApp", "Chat on WhatsApp")}
+              </motion.button>
+            </a>
           </div>
         </motion.div>
         {/* ========================================== */}

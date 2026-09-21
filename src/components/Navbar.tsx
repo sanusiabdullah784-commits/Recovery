@@ -41,7 +41,8 @@ export function Navbar() {
     { href: "/report", label: lang === "en" ? "Found/Report" : "Find/Report" },
     { href: "/complaints", label: lang === "en" ? "Lost/Complaint" : "Lost/Complain" },
     { href: "/legal-services", label: lang === "en" ? "Legal Services" : "Legal Work" },
-    { href: "/flagged", label: "Flagged Items" },
+    // ✅ UPDATED: Changed "Flagged Items" to "Claim Your Item"
+    { href: "/flagged", label: lang === "en" ? "Claim Your Item" : "Claim Your Item" },
     { href: "/contact", label: lang === "en" ? "Contact" : "Contact Us" },
   ];
 
@@ -99,7 +100,7 @@ export function Navbar() {
               className="appearance-none bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm font-bold rounded-full py-2.5 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all cursor-pointer hover:bg-amber-50 dark:hover:bg-slate-700"
             >
               <option value="en">🇬🇧 English</option>
-              <option value="pid">🇳🇬 Pidgin</option>
+              <option value="pid">🇬 Pidgin</option>
               <option value="fr">🇫🇷 French</option>
               <option value="de">🇩🇪 German</option>
               <option value="zh">🇨🇳 Chinese</option>
@@ -181,7 +182,7 @@ export function Navbar() {
                     className="appearance-none w-full bg-white border border-slate-200 text-slate-800 text-sm font-bold rounded-xl py-3 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all cursor-pointer"
                   >
                     <option value="en">🇬🇧 English</option>
-                    <option value="pid">🇳🇬 Pidgin</option>
+                    <option value="pid">🇬 Pidgin</option>
                     <option value="fr">🇫🇷 French</option>
                     <option value="de">🇩🇪 German</option>
                     <option value="zh">🇨🇳 Chinese</option>

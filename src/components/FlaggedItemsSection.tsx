@@ -187,9 +187,10 @@ export function FlaggedItemsSection() {
             {t("Items safely received and stored in our secure warehouse awaiting their rightful owners. Search below to see if your lost property is here.", "Items wey dem safely receive and keep for our secure warehouse, wey dey wait for their rightful owners. Search below to see if your lost property dey here.")}
           </p>
 
-          <Link href="/flagged" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-600/20 text-purple-700 font-bold rounded-xl transition-all duration-300 hover:scale-105 backdrop-blur-md group">
+          {/* ✅ UPDATED: Changed "Flag an Item" to "Claim an Item" and link to /complaints */}
+          <Link href="/complaints" className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-600/20 text-purple-700 font-bold rounded-xl transition-all duration-300 hover:scale-105 backdrop-blur-md group">
             <Flag className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
-            {t("Flag an Item", "Flag an Item")}
+            {t("claim_an_item_btn", "Claim an Item")}
           </Link>
         </motion.div>
 

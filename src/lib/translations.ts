@@ -2,7 +2,7 @@ export type Language = "en" | "pid" | "fr" | "de" | "zh" | "ar";
 
 export const translations = {
   // Hero Section
-  hero_badge: { en: "Global Leaders in Secure Recovery", pid: "The Number One Place for Secure Recovery", fr: "Leaders mondiaux en récupération sécurisée", de: "Globale Führungskräfte in sicherer Wiederherstellung", zh: "安全恢复的全球领导者", ar: "الرواد العالميون في الاسترداد الآمن" },
+  hero_badge: { en: "Global Leader in Secure Recovery", pid: "The Number One Place for Secure Recovery", fr: "Leader mondial en récupération sécurisée", de: "Globale Führungskraft in sicherer Wiederherstellung", zh: "安全恢复的全球领导者", ar: "الرائد العالمي في الاسترداد الآمن" },
   hero_title_1: { en: "Recover What's", pid: "Recover Wetin", fr: "Récupérez ce qui est", de: "Finden Sie was", zh: "找回您的", ar: "استعد ما" },
   hero_title_2: { en: "Lost.", pid: "You Don Lose.", fr: "perdu.", de: "verloren ist.", zh: "丢失物品。", ar: "فقدته." },
   hero_subtitle: { en: "The secure, verified, and fastest way to recover your lost property and resolve disputes in Nigeria and across the globe.", pid: "The most secure, verified, and fastest way to recover your lost property and solve any wahala for Nigeria and across the globe.", fr: "Le moyen le plus sûr, vérifié et rapide de récupérer vos biens perdus et de résoudre les litiges au Nigeria et dans le monde.", de: "Der sicherste, verifizierte und schnellste Weg, um Ihr verlorenes Eigentum wiederzuerlangen und Streitigkeiten in Nigeria und weltweit zu lösen.", zh: "在尼日利亚及全球范围内，安全、可靠、最快地找回丢失财产并解决纠纷的方式。", ar: "الطريقة الأكثر أماناً وموثوقية وسرعة لاسترداد ممتلكاتك المفقودة وحل النزاعات في نيجيريا وحول العالم." },
@@ -22,7 +22,13 @@ export const translations = {
   action_track: { en: "Reference ID", pid: "Reference ID", fr: "ID de Référence", de: "Referenz-ID", zh: "参考 ID", ar: "معرف المرجع" },
   action_report: { en: "Found/Report", pid: "Find/Report", fr: "Trouvé/Signaler", de: "Gefunden/Melden", zh: "找到/报告", ar: "موجود/إبلاغ" },
   action_complaint: { en: "Lost/Complaint", pid: "Lost/Complain", fr: "Perdu/Plainte", de: "Verloren/Beschwerde", zh: "丢失/投诉", ar: "مفقود/شكوى" },
-  action_flagged: { en: "Flagged Items", pid: "Flagged Items", fr: "Articles signalés", de: "Markierte Artikel", zh: "标记物品", ar: "العناصر المعلمة" },
+  
+  // ✅ UPDATED: Changed from "Flagged Items" to "Claim Your Item"
+  action_flagged: { en: "Claim Your Item", pid: "Claim Your Item", fr: "Réclamer votre article", de: "Ihren Artikel beanspruchen", zh: "认领您的物品", ar: "اطلب عنصر الخاص بك" },
+  
+  // ✅ NEW: Added for the button inside the Claim page
+  claim_an_item_btn: { en: "Claim an Item", pid: "Claim an Item", fr: "Réclamer un article", de: "Einen Artikel beanspruchen", zh: "认领物品", ar: "اطلب عنصراً" },
+  
   action_legal: { en: "Legal Services", pid: "Legal Services", fr: "Services juridiques", de: "Rechtsdienstleistungen", zh: "法律服务", ar: "الخدمات القانونية" },
   action_contact: { en: "Contact", pid: "Contact Us", fr: "Contact", de: "Kontakt", zh: "联系我们", ar: "اتصل بنا" },
   

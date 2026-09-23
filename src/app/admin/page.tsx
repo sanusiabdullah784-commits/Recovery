@@ -7,7 +7,7 @@ import {
   AlertTriangle, TrendingUp, RefreshCw, ShieldCheck, 
   BarChart3, Sun, Moon, Eye, X, MapPin, Calendar, 
   User, Mail, Phone, Image as ImageIcon, CreditCard,
-  Search, Filter, XCircle, Activity, Zap, Briefcase
+  Search, Filter, XCircle, Activity, Zap, Briefcase, Flag
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useLanguage } from "@/context/LanguageContext";
@@ -64,6 +64,8 @@ function StatusBadge({ status }: { status: string }) {
     pending: "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
     in_progress: "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
     under_review: "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
+    under_investigation: "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+    active_alert: "bg-red-500/10 text-red-600 border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
     matched: "bg-purple-500/10 text-purple-600 border-purple-500/20 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20",
     resolved: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
     claimed: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
@@ -74,16 +76,21 @@ function StatusBadge({ status }: { status: string }) {
     rejected: "bg-red-500/10 text-red-600 border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
   };
   const labels: Record<string, string> = { 
-    pending: "Pending", in_progress: "In Progress", under_review: "Under Review", matched: "Matched", 
-    resolved: "Resolved", claimed: "Claimed", approved: "Approved", confirmed: "Confirmed", 
-    completed: "Completed", cancelled: "Cancelled", rejected: "Rejected" 
+    pending: "Pending", in_progress: "In Progress", under_review: "Under Review", under_investigation: "Under Investigation",
+    active_alert: "Active Alert", matched: "Matched", resolved: "Resolved", claimed: "Claimed", 
+    approved: "Approved", confirmed: "Confirmed", completed: "Completed", cancelled: "Cancelled", rejected: "Rejected" 
   };
   const style = styles[cleanStatus] || styles.pending;
   const label = labels[cleanStatus] || status;
 
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border capitalize ${style}`}>
-      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${cleanStatus === 'resolved' || cleanStatus === 'claimed' || cleanStatus === 'approved' || cleanStatus === 'confirmed' || cleanStatus === 'completed' ? 'bg-emerald-500' : cleanStatus === 'in_progress' || cleanStatus === 'matched' || cleanStatus === 'under_review' ? 'bg-blue-500 animate-pulse' : 'bg-amber-500'}`} />
+      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+        cleanStatus === 'resolved' || cleanStatus === 'claimed' || cleanStatus === 'approved' || cleanStatus === 'confirmed' || cleanStatus === 'completed' ? 'bg-emerald-500' : 
+        cleanStatus === 'in_progress' || cleanStatus === 'matched' || cleanStatus === 'under_review' || cleanStatus === 'under_investigation' ? 'bg-blue-500 animate-pulse' : 
+        cleanStatus === 'active_alert' ? 'bg-red-500 animate-pulse' : 
+        'bg-amber-500'
+      }`} />
       {label}
     </span>
   );
@@ -152,16 +159,17 @@ function DashboardChart({ complaints, foundItems }: { complaints: any[]; foundIt
 // ==========================================
 // LIVE ACTIVITY / AUDIT LOG FEED
 // ==========================================
-function ActivityFeed({ complaints, foundItems, consultations, claims }: { complaints: any[]; foundItems: any[]; consultations: any[]; claims: any[] }) {
+function ActivityFeed({ complaints, foundItems, consultations, claims, flaggedItems }: { complaints: any[]; foundItems: any[]; consultations: any[]; claims: any[]; flaggedItems: any[] }) {
   const recentActivities = useMemo(() => {
     const combined = [
       ...complaints.map(c => ({ ...c, type: 'complaint' })),
       ...foundItems.map(f => ({ ...f, type: 'found' })),
       ...consultations.map(c => ({ ...c, type: 'consultation' })),
-      ...claims.map(c => ({ ...c, type: 'claim' }))
+      ...claims.map(c => ({ ...c, type: 'claim' })),
+      ...flaggedItems.map(f => ({ ...f, type: 'flagged' }))
     ];
     return combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 8);
-  }, [complaints, foundItems, consultations, claims]);
+  }, [complaints, foundItems, consultations, claims, flaggedItems]);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border p-6 backdrop-blur-sm bg-white/80 border-[#283113]/10 dark:bg-[#283113]/60 dark:border-[#F3FF74]/10">
@@ -192,6 +200,7 @@ function ActivityFeed({ complaints, foundItems, consultations, claims }: { compl
               if (activity.type === 'found') { icon = <Package className="h-4 w-4" />; colorClass = "bg-blue-500/10 text-blue-600 dark:text-blue-400"; title = "New Item Reported"; }
               else if (activity.type === 'consultation') { icon = <Calendar className="h-4 w-4" />; colorClass = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"; title = "New Consultation Booked"; }
               else if (activity.type === 'claim') { icon = <Briefcase className="h-4 w-4" />; colorClass = "bg-amber-500/10 text-amber-600 dark:text-amber-400"; title = "New Item Claim Submitted"; }
+              else if (activity.type === 'flagged') { icon = <Flag className="h-4 w-4" />; colorClass = "bg-red-500/10 text-red-600 dark:text-red-400"; title = "New Item Flagged"; }
 
               return (
                 <motion.div
@@ -213,7 +222,7 @@ function ActivityFeed({ complaints, foundItems, consultations, claims }: { compl
                       {title}
                     </p>
                     <p className="text-[10px] text-[#283113]/60 dark:text-[#F3FF74]/60 truncate mt-0.5">
-                      {activity.tracking_id || activity.full_name} • {activity.category || activity.service_type || 'Claim'}
+                      {activity.tracking_id || activity.full_name || activity.title} • {activity.category || activity.service_type || activity.reason || 'Claim'}
                     </p>
                   </div>
                   <div className="text-[10px] font-medium text-[#283113]/40 dark:text-[#F3FF74]/40 whitespace-nowrap flex-shrink-0">
@@ -235,12 +244,13 @@ function ActivityFeed({ complaints, foundItems, consultations, claims }: { compl
 export default function AdminDashboard() {
   const { t } = useLanguage();
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [activeTab, setActiveTab] = useState<"complaints" | "found" | "consultations" | "claims">("complaints");
+  const [activeTab, setActiveTab] = useState<"complaints" | "found" | "consultations" | "claims" | "flagged">("complaints");
   
   const [complaints, setComplaints] = useState<any[]>([]);
   const [foundItems, setFoundItems] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [claims, setClaims] = useState<any[]>([]);
+  const [flaggedItems, setFlaggedItems] = useState<any[]>([]); // ✅ NEW
   
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -251,16 +261,18 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [compRes, foundRes, consultRes, claimsRes] = await Promise.all([
+    const [compRes, foundRes, consultRes, claimsRes, flaggedRes] = await Promise.all([
       supabase.from("complaints").select("*").order("created_at", { ascending: false }),
       supabase.from("found_items").select("*").order("created_at", { ascending: false }),
       supabase.from("consultation_bookings").select("*").order("created_at", { ascending: false }),
-      supabase.from("item_claims").select("*").order("created_at", { ascending: false }) // Ensure this table exists in Supabase
+      supabase.from("item_claims").select("*").order("created_at", { ascending: false }),
+      supabase.from("flagged_items").select("*").order("created_at", { ascending: false }) // ✅ NEW
     ]);
     if (compRes.data) setComplaints(compRes.data);
     if (foundRes.data) setFoundItems(foundRes.data);
     if (consultRes.data) setConsultations(consultRes.data);
     if (claimsRes.data) setClaims(claimsRes.data);
+    if (flaggedRes.data) setFlaggedItems(flaggedRes.data); // ✅ NEW
     setLoading(false);
   };
 
@@ -277,6 +289,7 @@ export default function AdminDashboard() {
       else if (type === "found_items") setFoundItems(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
       else if (type === "consultation_bookings") setConsultations(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
       else if (type === "item_claims") setClaims(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
+      else if (type === "flagged_items") setFlaggedItems(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item)); // ✅ NEW
     }
     setUpdatingId(null);
   };
@@ -287,12 +300,13 @@ export default function AdminDashboard() {
       case "found": return foundItems;
       case "consultations": return consultations;
       case "claims": return claims;
+      case "flagged": return flaggedItems; // ✅ NEW
       default: return complaints;
     }
   };
 
   const activeData = getActiveData();
-  const tableType = activeTab === "complaints" ? "complaints" : activeTab === "found" ? "found_items" : activeTab === "consultations" ? "consultation_bookings" : "item_claims";
+  const tableType = activeTab === "complaints" ? "complaints" : activeTab === "found" ? "found_items" : activeTab === "consultations" ? "consultation_bookings" : activeTab === "claims" ? "item_claims" : "flagged_items"; // ✅ UPDATED
 
   const filteredData = useMemo(() => {
     return activeData.filter((item: any) => {
@@ -304,7 +318,9 @@ export default function AdminDashboard() {
         item.category?.toLowerCase().includes(query) ||
         item.item_type?.toLowerCase().includes(query) ||
         item.service_type?.toLowerCase().includes(query) ||
-        item.description?.toLowerCase().includes(query);
+        item.description?.toLowerCase().includes(query) ||
+        item.title?.toLowerCase().includes(query) || // ✅ NEW for flagged
+        item.reason?.toLowerCase().includes(query);  // ✅ NEW for flagged
       const matchesStatus = statusFilter === "all" || item.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -313,6 +329,7 @@ export default function AdminDashboard() {
   const totalCases = complaints.length + foundItems.length;
   const resolvedCases = complaints.filter(c => c.status === "resolved").length + foundItems.filter(f => f.status === "claimed").length;
   const pendingConsultations = consultations.filter(c => c.status === "pending").length;
+  const activeAlerts = flaggedItems.filter(f => f.status === "Active Alert").length; // ✅ NEW
 
   const clearFilters = () => { setSearchQuery(""); setStatusFilter("all"); };
   const isFiltering = searchQuery !== "" || statusFilter !== "all";
@@ -344,199 +361,203 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-[#283113] dark:text-[#F3FF74]">Dashboard Overview</h2>
-              <p className="text-[#283113]/60 dark:text-[#F3FF74]/60 mt-1">Monitor and manage all recovery cases, found items, consultations, and claims.</p>
+              <p className="text-[#283113]/60 dark:text-[#F3FF74]/60 mt-1">Monitor and manage all recovery cases, found items, consultations, claims, and flagged items.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard title="Total Cases" value={totalCases} icon={LayoutDashboard} trend="+12% this month" />
               <StatCard title="Pending Review" value={complaints.filter(c => c.status === 'pending').length + foundItems.filter(f => f.status === 'pending').length} icon={Clock} />
-              <StatCard title="Pending Consultations" value={pendingConsultations} icon={Calendar} />
+              <StatCard title="Active Alerts" value={activeAlerts} icon={AlertTriangle} /> {/* ✅ NEW */}
               <StatCard title="Successfully Resolved" value={resolvedCases} icon={CheckCircle} trend="98% success rate" />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column: Chart & Live Feed */}
-            <div className="lg:col-span-1 space-y-6">
-              <DashboardChart complaints={complaints} foundItems={foundItems} />
-              <ActivityFeed complaints={complaints} foundItems={foundItems} consultations={consultations} claims={claims} />
+          {/* ✅ UPDATED: Full Width Table Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-[#283113]/10 dark:border-[#F3FF74]/10 overflow-x-auto no-scrollbar">
+              <button onClick={() => { setActiveTab("complaints"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "complaints" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
+                <span className="flex items-center gap-2"><FileText className="h-4 w-4" /> Complaints ({complaints.length})</span>
+                {activeTab === "complaints" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
+              </button>
+              <button onClick={() => { setActiveTab("found"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "found" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
+                <span className="flex items-center gap-2"><Package className="h-4 w-4" /> Found Items ({foundItems.length})</span>
+                {activeTab === "found" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
+              </button>
+              <button onClick={() => { setActiveTab("consultations"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "consultations" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
+                <span className="flex items-center gap-2"><Calendar className="h-4 w-4" /> Consultations ({consultations.length})</span>
+                {activeTab === "consultations" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
+              </button>
+              <button onClick={() => { setActiveTab("claims"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "claims" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
+                <span className="flex items-center gap-2"><Briefcase className="h-4 w-4" /> Item Claims ({claims.length})</span>
+                {activeTab === "claims" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
+              </button>
+              {/* ✅ NEW: Flagged Items Tab */}
+              <button onClick={() => { setActiveTab("flagged"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "flagged" ? "text-red-600 dark:text-red-400" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-red-600 dark:hover:text-red-400"}`}>
+                <span className="flex items-center gap-2"><Flag className="h-4 w-4" /> Flagged Items ({flaggedItems.length})</span>
+                {activeTab === "flagged" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-500" />}
+              </button>
             </div>
 
-            {/* Right Column: Tabs & Table */}
-            <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center gap-2 border-b border-[#283113]/10 dark:border-[#F3FF74]/10 overflow-x-auto no-scrollbar">
-                <button onClick={() => { setActiveTab("complaints"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "complaints" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
-                  <span className="flex items-center gap-2"><FileText className="h-4 w-4" /> Complaints ({complaints.length})</span>
-                  {activeTab === "complaints" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
-                </button>
-                <button onClick={() => { setActiveTab("found"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "found" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
-                  <span className="flex items-center gap-2"><Package className="h-4 w-4" /> Found Items ({foundItems.length})</span>
-                  {activeTab === "found" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
-                </button>
-                <button onClick={() => { setActiveTab("consultations"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "consultations" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
-                  <span className="flex items-center gap-2"><Calendar className="h-4 w-4" /> Consultations ({consultations.length})</span>
-                  {activeTab === "consultations" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
-                </button>
-                <button onClick={() => { setActiveTab("claims"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "claims" ? "text-[#283113] dark:text-[#F3FF74]" : "text-[#283113]/50 dark:text-[#F3FF74]/50 hover:text-[#283113] dark:hover:text-[#F3FF74]"}`}>
-                  <span className="flex items-center gap-2"><Briefcase className="h-4 w-4" /> Item Claims ({claims.length})</span>
-                  {activeTab === "claims" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F3FF74]" />}
-                </button>
+            <div className="flex flex-col sm:flex-row gap-3 p-3 rounded-2xl border bg-white/80 border-[#283113]/10 dark:bg-[#283113]/60 dark:border-[#F3FF74]/10 backdrop-blur-sm">
+              <div className="relative flex-grow">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#283113]/40 dark:text-[#F3FF74]/40" />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by ID, Name, Title, or Reason..." className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10 text-sm text-[#283113] dark:text-[#F3FF74] placeholder:text-[#283113]/40 dark:placeholder:text-[#F3FF74]/40 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 transition-all" />
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 p-3 rounded-2xl border bg-white/80 border-[#283113]/10 dark:bg-[#283113]/60 dark:border-[#F3FF74]/10 backdrop-blur-sm">
-                <div className="relative flex-grow">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#283113]/40 dark:text-[#F3FF74]/40" />
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by ID, Name, Email, or Category..." className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10 text-sm text-[#283113] dark:text-[#F3FF74] placeholder:text-[#283113]/40 dark:placeholder:text-[#F3FF74]/40 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 transition-all" />
-                </div>
-                <div className="relative sm:w-48">
-                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#283113]/40 dark:text-[#F3FF74]/40 pointer-events-none" />
-                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10 text-sm text-[#283113] dark:text-[#F3FF74] focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 transition-all appearance-none cursor-pointer">
-                    <option value="all">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="under_review">Under Review</option>
-                    <option value="matched">Matched</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="claimed">Claimed</option>
-                    <option value="approved">Approved</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-                <AnimatePresence>
-                  {isFiltering && (
-                    <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={clearFilters} className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#283113]/5 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#283113]/10 dark:hover:bg-[#F3FF74]/20 transition-colors text-sm font-medium whitespace-nowrap">
-                      <XCircle className="h-4 w-4" /> Clear
-                    </motion.button>
-                  )}
-                </AnimatePresence>
+              <div className="relative sm:w-48">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#283113]/40 dark:text-[#F3FF74]/40 pointer-events-none" />
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10 text-sm text-[#283113] dark:text-[#F3FF74] focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 transition-all appearance-none cursor-pointer">
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="Active Alert">Active Alert</option>
+                  <option value="Under Investigation">Under Investigation</option>
+                  <option value="Resolved">Resolved</option>
+                  <option value="claimed">Claimed</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
               </div>
+              <AnimatePresence>
+                {isFiltering && (
+                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={clearFilters} className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#283113]/5 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#283113]/10 dark:hover:bg-[#F3FF74]/20 transition-colors text-sm font-medium whitespace-nowrap">
+                    <XCircle className="h-4 w-4" /> Clear
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
 
-              <div className="rounded-2xl border overflow-hidden transition-colors duration-300 bg-white/80 border-[#283113]/10 dark:bg-[#283113]/60 dark:border-[#F3FF74]/10">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-[#283113]/5 dark:bg-[#F3FF74]/5 text-[#283113]/70 dark:text-[#F3FF74]/70 font-medium border-b border-[#283113]/10 dark:border-[#F3FF74]/10">
-                      <tr>
-                        {activeTab === "consultations" ? (
-                          <>
-                            <th className="px-6 py-4">Name</th>
-                            <th className="px-6 py-4">Service Type</th>
-                            <th className="px-6 py-4 hidden md:table-cell">Date & Time</th>
-                            <th className="px-6 py-4 hidden sm:table-cell">Contact</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                          </>
-                        ) : activeTab === "claims" ? (
-                          <>
-                            <th className="px-6 py-4">Tracking ID</th>
-                            <th className="px-6 py-4">Claimant</th>
-                            <th className="px-6 py-4 hidden md:table-cell">Contact</th>
-                            <th className="px-6 py-4 hidden sm:table-cell">Date</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                          </>
-                        ) : (
-                          <>
-                            <th className="px-6 py-4">Tracking ID</th>
-                            <th className="px-6 py-4">Category / Item</th>
-                            <th className="px-6 py-4 hidden md:table-cell">Contact</th>
-                            <th className="px-6 py-4 hidden sm:table-cell">Date</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                          </>
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#283113]/5 dark:divide-[#F3FF74]/5">
-                      <AnimatePresence mode="wait">
-                        {loading ? (
-                          <tr><td colSpan={6} className="px-6 py-12 text-center text-[#283113]/50 dark:text-[#F3FF74]/50"><RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />Loading data...</td></tr>
-                        ) : filteredData.length === 0 ? (
-                          <tr><td colSpan={6} className="px-6 py-12 text-center"><div className="flex flex-col items-center justify-center text-[#283113]/50 dark:text-[#F3FF74]/50">{isFiltering ? <><Search className="h-8 w-8 mb-2 text-[#283113]/30 dark:text-[#F3FF74]/30" /><p className="font-medium">No records match your search.</p><p className="text-xs mt-1">Try adjusting your filters.</p></> : <><AlertTriangle className="h-8 w-8 mb-2 text-[#283113]/30 dark:text-[#F3FF74]/30" /><p className="font-medium">No records found.</p></>}</div></td></tr>
-                        ) : (
-                          filteredData.map((item: any, index: number) => (
-                            <motion.tr key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }} className="group hover:bg-[#F3FF74]/5 dark:hover:bg-[#F3FF74]/5 transition-colors">
-                              {activeTab === "consultations" ? (
-                                <>
-                                  <td className="px-6 py-4 font-medium text-[#283113] dark:text-[#F3FF74]">{item.full_name}</td>
-                                  <td className="px-6 py-4 text-sm text-[#283113]/70 dark:text-[#F3FF74]/70">{item.service_type}</td>
-                                  <td className="px-6 py-4 hidden md:table-cell text-sm text-[#283113]/60 dark:text-[#F3FF74]/60">
-                                    {item.preferred_date} at {item.preferred_time}
-                                  </td>
-                                  <td className="px-6 py-4 hidden sm:table-cell">
-                                    <div className="text-sm text-[#283113] dark:text-[#F3FF74]">{item.email}</div>
-                                    <div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50">{item.phone}</div>
-                                  </td>
-                                  <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
-                                  <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                      <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#F3FF74]/20 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#F3FF74]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#283113] border border-[#283113]/20 dark:border-[#F3FF74]/20 text-[#283113] dark:text-[#F3FF74] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 disabled:opacity-50 cursor-pointer hover:border-[#F3FF74]/50 transition-colors">
-                                        <option value="pending">Pending</option>
-                                        <option value="confirmed">Confirmed</option>
-                                        <option value="cancelled">Cancelled</option>
-                                        <option value="completed">Completed</option>
-                                      </select>
-                                    </div>
-                                  </td>
-                                </>
-                              ) : activeTab === "claims" ? (
-                                <>
-                                  <td className="px-6 py-4"><span className="font-mono font-semibold text-[#283113] dark:text-[#F3FF74]">{item.tracking_id}</span></td>
-                                  <td className="px-6 py-4">
-                                    <div className="font-medium text-[#283113] dark:text-[#F3FF74]">{item.full_name}</div>
-                                  </td>
-                                  <td className="px-6 py-4 hidden md:table-cell">
-                                    <div className="text-[#283113] dark:text-[#F3FF74]">{item.email}</div>
-                                    <div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50">{item.phone}</div>
-                                  </td>
-                                  <td className="px-6 py-4 hidden sm:table-cell text-[#283113]/60 dark:text-[#F3FF74]/60">{new Date(item.created_at).toLocaleDateString()}</td>
-                                  <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
-                                  <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                      <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#F3FF74]/20 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#F3FF74]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#283113] border border-[#283113]/20 dark:border-[#F3FF74]/20 text-[#283113] dark:text-[#F3FF74] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 disabled:opacity-50 cursor-pointer hover:border-[#F3FF74]/50 transition-colors">
-                                        <option value="pending">Pending</option>
-                                        <option value="under_review">Under Review</option>
-                                        <option value="approved">Approved</option>
-                                        <option value="rejected">Rejected</option>
-                                      </select>
-                                    </div>
-                                  </td>
-                                </>
-                              ) : (
-                                <>
-                                  <td className="px-6 py-4"><span className="font-mono font-semibold text-[#283113] dark:text-[#F3FF74]">{item.tracking_id}</span></td>
-                                  <td className="px-6 py-4">
-                                    <div className="font-medium text-[#283113] dark:text-[#F3FF74]">{item.category || item.item_type}</div>
-                                    <div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 truncate max-w-[200px]">{activeTab === "complaints" ? item.item_type : item.description}</div>
-                                  </td>
-                                  <td className="px-6 py-4 hidden md:table-cell">
-                                    <div className="text-[#283113] dark:text-[#F3FF74]">{item.is_anonymous ? "Anonymous" : item.full_name}</div>
-                                    <div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50">{item.email}</div>
-                                  </td>
-                                  <td className="px-6 py-4 hidden sm:table-cell text-[#283113]/60 dark:text-[#F3FF74]/60">{new Date(item.created_at).toLocaleDateString()}</td>
-                                  <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
-                                  <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                      <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#F3FF74]/20 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#F3FF74]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#283113] border border-[#283113]/20 dark:border-[#F3FF74]/20 text-[#283113] dark:text-[#F3FF74] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 disabled:opacity-50 cursor-pointer hover:border-[#F3FF74]/50 transition-colors">
-                                        <option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="matched">Matched</option><option value="resolved">Resolved</option><option value="claimed">Claimed</option><option value="cancelled">Cancelled</option>
-                                      </select>
-                                    </div>
-                                  </td>
-                                </>
-                              )}
-                            </motion.tr>
-                          ))
-                        )}
-                      </AnimatePresence>
-                    </tbody>
-                  </table>
-                </div>
+            <div className="rounded-2xl border overflow-hidden transition-colors duration-300 bg-white/80 border-[#283113]/10 dark:bg-[#283113]/60 dark:border-[#F3FF74]/10">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-[#283113]/5 dark:bg-[#F3FF74]/5 text-[#283113]/70 dark:text-[#F3FF74]/70 font-medium border-b border-[#283113]/10 dark:border-[#F3FF74]/10">
+                    <tr>
+                      {activeTab === "flagged" ? ( // ✅ NEW: Flagged Items Table Headers
+                        <>
+                          <th className="px-6 py-4">Tracking ID</th>
+                          <th className="px-6 py-4">Title</th>
+                          <th className="px-6 py-4 hidden md:table-cell">Reason</th>
+                          <th className="px-6 py-4 hidden sm:table-cell">Location</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                        </>
+                      ) : activeTab === "consultations" ? (
+                        <>
+                          <th className="px-6 py-4">Name</th>
+                          <th className="px-6 py-4">Service Type</th>
+                          <th className="px-6 py-4 hidden md:table-cell">Date & Time</th>
+                          <th className="px-6 py-4 hidden sm:table-cell">Contact</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                        </>
+                      ) : activeTab === "claims" ? (
+                        <>
+                          <th className="px-6 py-4">Tracking ID</th>
+                          <th className="px-6 py-4">Claimant</th>
+                          <th className="px-6 py-4 hidden md:table-cell">Contact</th>
+                          <th className="px-6 py-4 hidden sm:table-cell">Date</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                        </>
+                      ) : (
+                        <>
+                          <th className="px-6 py-4">Tracking ID</th>
+                          <th className="px-6 py-4">Category / Item</th>
+                          <th className="px-6 py-4 hidden md:table-cell">Contact</th>
+                          <th className="px-6 py-4 hidden sm:table-cell">Date</th>
+                          <th className="px-6 py-4">Status</th>
+                          <th className="px-6 py-4 text-right">Actions</th>
+                        </>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#283113]/5 dark:divide-[#F3FF74]/5">
+                    <AnimatePresence mode="wait">
+                      {loading ? (
+                        <tr><td colSpan={6} className="px-6 py-12 text-center text-[#283113]/50 dark:text-[#F3FF74]/50"><RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />Loading data...</td></tr>
+                      ) : filteredData.length === 0 ? (
+                        <tr><td colSpan={6} className="px-6 py-12 text-center"><div className="flex flex-col items-center justify-center text-[#283113]/50 dark:text-[#F3FF74]/50"><AlertTriangle className="h-8 w-8 mb-2 text-[#283113]/30 dark:text-[#F3FF74]/30" /><p className="font-medium">No records found.</p></div></td></tr>
+                      ) : (
+                        filteredData.map((item: any, index: number) => (
+                          <motion.tr key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }} className="group hover:bg-[#F3FF74]/5 dark:hover:bg-[#F3FF74]/5 transition-colors">
+                            {activeTab === "flagged" ? ( // ✅ NEW: Flagged Items Table Rows
+                              <>
+                                <td className="px-6 py-4"><span className="font-mono font-semibold text-[#283113] dark:text-[#F3FF74]">{item.tracking_id}</span></td>
+                                <td className="px-6 py-4 font-medium text-[#283113] dark:text-[#F3FF74]">{item.title}</td>
+                                <td className="px-6 py-4 hidden md:table-cell text-sm text-[#283113]/70 dark:text-[#F3FF74]/70">{item.reason}</td>
+                                <td className="px-6 py-4 hidden sm:table-cell text-sm text-[#283113]/60 dark:text-[#F3FF74]/60">{item.location}</td>
+                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#F3FF74]/20 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#F3FF74]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#283113] border border-[#283113]/20 dark:border-[#F3FF74]/20 text-[#283113] dark:text-[#F3FF74] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 disabled:opacity-50 cursor-pointer hover:border-[#F3FF74]/50 transition-colors">
+                                      <option value="Active Alert">Active Alert</option>
+                                      <option value="Under Investigation">Under Investigation</option>
+                                      <option value="Resolved">Resolved</option>
+                                    </select>
+                                  </div>
+                                </td>
+                              </>
+                            ) : activeTab === "consultations" ? (
+                              <>
+                                <td className="px-6 py-4 font-medium text-[#283113] dark:text-[#F3FF74]">{item.full_name}</td>
+                                <td className="px-6 py-4 text-sm text-[#283113]/70 dark:text-[#F3FF74]/70">{item.service_type}</td>
+                                <td className="px-6 py-4 hidden md:table-cell text-sm text-[#283113]/60 dark:text-[#F3FF74]/60">{item.preferred_date} at {item.preferred_time}</td>
+                                <td className="px-6 py-4 hidden sm:table-cell"><div className="text-sm text-[#283113] dark:text-[#F3FF74]">{item.email}</div><div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50">{item.phone}</div></td>
+                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#F3FF74]/20 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#F3FF74]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#283113] border border-[#283113]/20 dark:border-[#F3FF74]/20 text-[#283113] dark:text-[#F3FF74] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 disabled:opacity-50 cursor-pointer hover:border-[#F3FF74]/50 transition-colors">
+                                      <option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option><option value="completed">Completed</option>
+                                    </select>
+                                  </div>
+                                </td>
+                              </>
+                            ) : activeTab === "claims" ? (
+                              <>
+                                <td className="px-6 py-4"><span className="font-mono font-semibold text-[#283113] dark:text-[#F3FF74]">{item.tracking_id}</span></td>
+                                <td className="px-6 py-4"><div className="font-medium text-[#283113] dark:text-[#F3FF74]">{item.full_name}</div></td>
+                                <td className="px-6 py-4 hidden md:table-cell"><div className="text-[#283113] dark:text-[#F3FF74]">{item.email}</div><div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50">{item.phone}</div></td>
+                                <td className="px-6 py-4 hidden sm:table-cell text-[#283113]/60 dark:text-[#F3FF74]/60">{new Date(item.created_at).toLocaleDateString()}</td>
+                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#F3FF74]/20 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#F3FF74]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#283113] border border-[#283113]/20 dark:border-[#F3FF74]/20 text-[#283113] dark:text-[#F3FF74] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 disabled:opacity-50 cursor-pointer hover:border-[#F3FF74]/50 transition-colors">
+                                      <option value="pending">Pending</option><option value="under_review">Under Review</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
+                                    </select>
+                                  </div>
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td className="px-6 py-4"><span className="font-mono font-semibold text-[#283113] dark:text-[#F3FF74]">{item.tracking_id}</span></td>
+                                <td className="px-6 py-4"><div className="font-medium text-[#283113] dark:text-[#F3FF74]">{item.category || item.item_type}</div><div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 truncate max-w-[200px]">{activeTab === "complaints" ? item.item_type : item.description}</div></td>
+                                <td className="px-6 py-4 hidden md:table-cell"><div className="text-[#283113] dark:text-[#F3FF74]">{item.is_anonymous ? "Anonymous" : item.full_name}</div><div className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50">{item.email}</div></td>
+                                <td className="px-6 py-4 hidden sm:table-cell text-[#283113]/60 dark:text-[#F3FF74]/60">{new Date(item.created_at).toLocaleDateString()}</td>
+                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#F3FF74]/20 dark:bg-[#F3FF74]/10 text-[#283113] dark:text-[#F3FF74] hover:bg-[#F3FF74]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#283113] border border-[#283113]/20 dark:border-[#F3FF74]/20 text-[#283113] dark:text-[#F3FF74] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#F3FF74]/50 disabled:opacity-50 cursor-pointer hover:border-[#F3FF74]/50 transition-colors">
+                                      <option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="matched">Matched</option><option value="resolved">Resolved</option><option value="claimed">Claimed</option><option value="cancelled">Cancelled</option>
+                                    </select>
+                                  </div>
+                                </td>
+                              </>
+                            )}
+                          </motion.tr>
+                        ))
+                      )}
+                    </AnimatePresence>
+                  </tbody>
+                </table>
               </div>
             </div>
+          </div>
+
+          {/* ✅ UPDATED: Moved Chart & Live Feed to bottom */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <DashboardChart complaints={complaints} foundItems={foundItems} />
+            <ActivityFeed complaints={complaints} foundItems={foundItems} consultations={consultations} claims={claims} flaggedItems={flaggedItems} />
           </div>
         </main>
 
@@ -549,7 +570,7 @@ export default function AdminDashboard() {
                 <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-[#283113]/10 dark:border-[#F3FF74]/10 bg-[#FDFDF5]/90 dark:bg-[#283113]/90 backdrop-blur-md">
                   <div>
                     <h3 className="text-lg font-bold text-[#283113] dark:text-[#F3FF74]">
-                      {activeTab === "consultations" ? "Consultation Details" : activeTab === "claims" ? "Claim Details" : "Case Details"}
+                      {activeTab === "consultations" ? "Consultation Details" : activeTab === "claims" ? "Claim Details" : activeTab === "flagged" ? "Flagged Item Details" : "Case Details"}
                     </h3>
                     <p className="text-xs font-mono text-[#283113]/60 dark:text-[#F3FF74]/60">{selectedItem.tracking_id || selectedItem.id}</p>
                   </div>
@@ -559,105 +580,106 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between">
                     <StatusBadge status={selectedItem.status} />
                     <span className="text-xs font-semibold uppercase tracking-wider text-[#283113]/50 dark:text-[#F3FF74]/50">
-                      {activeTab === "complaints" ? "Complaint" : activeTab === "found" ? "Found Item" : activeTab === "consultations" ? "Consultation" : "Item Claim"}
+                      {activeTab === "complaints" ? "Complaint" : activeTab === "found" ? "Found Item" : activeTab === "consultations" ? "Consultation" : activeTab === "claims" ? "Item Claim" : "Flagged Item"}
                     </span>
                   </div>
                   
-                  {selectedItem.file_url && (
-                    <div className="rounded-xl overflow-hidden border border-[#283113]/10 dark:border-[#F3FF74]/10 bg-white dark:bg-[#1A220D]">
-                      <div className="px-4 py-2 bg-[#283113]/5 dark:bg-[#F3FF74]/5 border-b border-[#283113]/10 dark:border-[#F3FF74]/10 flex items-center gap-2">
-                        <ImageIcon className="h-4 w-4 text-[#283113] dark:text-[#F3FF74]" />
-                        <span className="text-xs font-bold text-[#283113] dark:text-[#F3FF74]">Uploaded Evidence</span>
+                  {activeTab === "flagged" ? ( // ✅ NEW: Flagged Item Details View
+                    <>
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-[#283113]/50 dark:text-[#F3FF74]/50">Reason for Flagging</h4>
+                        <p className="text-sm text-[#283113] dark:text-[#F3FF74] leading-relaxed bg-white dark:bg-[#1A220D] p-4 rounded-xl border border-[#283113]/10 dark:border-[#F3FF74]/10">{selectedItem.reason}</p>
                       </div>
-                      <img src={selectedItem.file_url} alt="Evidence" className="w-full h-48 object-cover" />
-                    </div>
-                  )}
-
-                  {(selectedItem.description || selectedItem.proof_details) && (
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#283113]/50 dark:text-[#F3FF74]/50">Details</h4>
-                      <p className="text-sm text-[#283113] dark:text-[#F3FF74] leading-relaxed bg-white dark:bg-[#1A220D] p-4 rounded-xl border border-[#283113]/10 dark:border-[#F3FF74]/10">
-                        {selectedItem.description || selectedItem.proof_details}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 gap-4">
-                    {activeTab === "consultations" ? (
-                      <>
-                        <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
-                          <Briefcase className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Service Type</p>
-                            <p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.service_type}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
-                          <Calendar className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Preferred Date & Time</p>
-                            <p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.preferred_date} at {selectedItem.preferred_time}</p>
-                          </div>
-                        </div>
-                      </>
-                    ) : activeTab !== "consultations" && (
-                      <>
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-[#283113]/50 dark:text-[#F3FF74]/50">Description</h4>
+                        <p className="text-sm text-[#283113] dark:text-[#F3FF74] leading-relaxed bg-white dark:bg-[#1A220D] p-4 rounded-xl border border-[#283113]/10 dark:border-[#F3FF74]/10">{selectedItem.description}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
                           <MapPin className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Location</p>
-                            <p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.location || selectedItem.location_found}</p>
-                          </div>
+                          <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Location</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.location}</p></div>
                         </div>
                         <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
                           <Calendar className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Date</p>
-                            <p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.incident_date || selectedItem.date_found}</p>
-                          </div>
+                          <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Date Flagged</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.date_flagged}</p></div>
                         </div>
-                      </>
-                    )}
-
-                    {!selectedItem.is_anonymous && (
-                      <>
-                        <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
-                          <User className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Full Name</p>
-                            <p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.full_name}</p>
+                      </div>
+                    </>
+                  ) : (
+                    // Existing logic for other tabs...
+                    <>
+                      {selectedItem.file_url && (
+                        <div className="rounded-xl overflow-hidden border border-[#283113]/10 dark:border-[#F3FF74]/10 bg-white dark:bg-[#1A220D]">
+                          <div className="px-4 py-2 bg-[#283113]/5 dark:bg-[#F3FF74]/5 border-b border-[#283113]/10 dark:border-[#F3FF74]/10 flex items-center gap-2">
+                            <ImageIcon className="h-4 w-4 text-[#283113] dark:text-[#F3FF74]" />
+                            <span className="text-xs font-bold text-[#283113] dark:text-[#F3FF74]">Uploaded Evidence</span>
                           </div>
+                          <img src={selectedItem.file_url} alt="Evidence" className="w-full h-48 object-cover" />
                         </div>
-                        <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
-                          <Mail className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Email</p>
-                            <p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.email}</p>
-                          </div>
+                      )}
+                      {(selectedItem.description || selectedItem.proof_details) && (
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-[#283113]/50 dark:text-[#F3FF74]/50">Details</h4>
+                          <p className="text-sm text-[#283113] dark:text-[#F3FF74] leading-relaxed bg-white dark:bg-[#1A220D] p-4 rounded-xl border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                            {selectedItem.description || selectedItem.proof_details}
+                          </p>
                         </div>
-                        {selectedItem.phone && (
-                          <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
-                            <Phone className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                      )}
+                      <div className="grid grid-cols-1 gap-4">
+                        {activeTab === "consultations" ? (
+                          <>
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                              <Briefcase className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                              <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Service Type</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.service_type}</p></div>
+                            </div>
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                              <Calendar className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                              <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Preferred Date & Time</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.preferred_date} at {selectedItem.preferred_time}</p></div>
+                            </div>
+                          </>
+                        ) : activeTab !== "consultations" && (
+                          <>
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                              <MapPin className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                              <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Location</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.location || selectedItem.location_found}</p></div>
+                            </div>
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                              <Calendar className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                              <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Date</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.incident_date || selectedItem.date_found}</p></div>
+                            </div>
+                          </>
+                        )}
+                        {!selectedItem.is_anonymous && (
+                          <>
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                              <User className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                              <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Full Name</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.full_name}</p></div>
+                            </div>
+                            <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                              <Mail className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                              <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Email</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.email}</p></div>
+                            </div>
+                            {selectedItem.phone && (
+                              <div className="flex items-start gap-3 p-3 rounded-xl bg-white dark:bg-[#1A220D] border border-[#283113]/10 dark:border-[#F3FF74]/10">
+                                <Phone className="h-5 w-5 text-[#283113]/60 dark:text-[#F3FF74]/60 flex-shrink-0 mt-0.5" />
+                                <div><p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Phone</p><p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.phone}</p></div>
+                              </div>
+                            )}
+                          </>
+                        )}
+                        {activeTab === "complaints" && selectedItem.payment_reference && (
+                          <div className="flex items-start gap-3 p-3 rounded-xl bg-[#F3FF74]/20 dark:bg-[#F3FF74]/5 border border-[#F3FF74]/30 dark:border-[#F3FF74]/20">
+                            <CreditCard className="h-5 w-5 text-[#283113] dark:text-[#F3FF74] flex-shrink-0 mt-0.5" />
                             <div>
-                              <p className="text-xs text-[#283113]/50 dark:text-[#F3FF74]/50 font-bold">Phone</p>
-                              <p className="text-sm text-[#283113] dark:text-[#F3FF74]">{selectedItem.phone}</p>
+                              <p className="text-xs text-[#283113]/70 dark:text-[#F3FF74]/70 font-bold">Payment Reference</p>
+                              <p className="text-xs font-mono text-[#283113] dark:text-[#F3FF74] break-all">{selectedItem.payment_reference}</p>
+                              <p className="text-[10px] uppercase mt-1 font-bold text-[#283113]/50 dark:text-[#F3FF74]/50">Method: {selectedItem.payment_method}</p>
                             </div>
                           </div>
                         )}
-                      </>
-                    )}
-
-                    {activeTab === "complaints" && selectedItem.payment_reference && (
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-[#F3FF74]/20 dark:bg-[#F3FF74]/5 border border-[#F3FF74]/30 dark:border-[#F3FF74]/20">
-                        <CreditCard className="h-5 w-5 text-[#283113] dark:text-[#F3FF74] flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-xs text-[#283113]/70 dark:text-[#F3FF74]/70 font-bold">Payment Reference</p>
-                          <p className="text-xs font-mono text-[#283113] dark:text-[#F3FF74] break-all">{selectedItem.payment_reference}</p>
-                          <p className="text-[10px] uppercase mt-1 font-bold text-[#283113]/50 dark:text-[#F3FF74]/50">Method: {selectedItem.payment_method}</p>
-                        </div>
                       </div>
-                    )}
-                  </div>
+                    </>
+                  )}
                 </div>
               </motion.div>
             </>

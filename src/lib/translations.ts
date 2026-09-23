@@ -26,6 +26,9 @@ export const translations = {
   // ✅ UPDATED: Changed from "Flagged Items" to "Claim Your Item"
   action_flagged: { en: "Claim Your Item", pid: "Claim Your Item", fr: "Réclamer votre article", de: "Ihren Artikel beanspruchen", zh: "认领您的物品", ar: "اطلب عنصر الخاص بك" },
   
+  // ✅ NEW: Added for the Flagged Items navbar link
+  action_flagged_items: { en: "Flagged Items", pid: "Flagged Items", fr: "Articles signalés", de: "Markierte Artikel", zh: "标记物品", ar: "العناصر المعلمة" },
+  
   // ✅ NEW: Added for the button inside the Claim page
   claim_an_item_btn: { en: "Claim an Item", pid: "Claim an Item", fr: "Réclamer un article", de: "Einen Artikel beanspruchen", zh: "认领物品", ar: "اطلب عنصراً" },
   

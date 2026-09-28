@@ -58,22 +58,22 @@ export function Navbar() {
           : "bg-transparent border-transparent"
       }`}
     >
-      {/* ✅ UPDATED: Adjusted padding for better space management */}
-      <div className="w-full max-w-7xl mx-auto flex h-20 md:h-24 lg:h-28 items-center justify-between px-3 md:px-6">
+      {/* ✅ UPDATED: Significantly increased navbar height to accommodate the massive logo */}
+      <div className="w-full max-w-7xl mx-auto flex h-28 md:h-32 lg:h-40 xl:h-44 items-center justify-between px-3 md:px-6">
         
-        {/* ✅ UPDATED: Optimized logo size to prevent horizontal overflow */}
+        {/* ✅ UPDATED: Massive logo size for a premium, flagship look */}
         <Link href="/" className="flex items-center shrink-0 group py-2" onClick={() => setIsOpen(false)}>
           <Image
             src="/logo.png"
             alt="Homeland Recovery Services Ltd Logo"
             width={280}
             height={280}
-            className="w-14 h-14 md:w-20 md:h-20 xl:w-28 xl:h-28 object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-500 ease-out flex-shrink-0"
+            className="w-20 h-20 md:w-28 md:h-28 xl:w-40 xl:h-40 object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-500 ease-out flex-shrink-0"
             priority
           />
         </Link>
 
-        {/* ✅ UPDATED: Tighter gaps and smaller text on lg, normal on xl to fit longer translations */}
+        {/* Desktop Links */}
         <div className="hidden lg:flex items-center gap-1 xl:gap-3">
           {navLinks.map((link) => (
             <Link 
@@ -91,7 +91,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* ✅ UPDATED: Language Dropdown with shrink-0 to prevent squishing */}
+        {/* Desktop Language Dropdown */}
         <div className="hidden lg:block shrink-0">
           <div className="relative">
             <Globe className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 xl:h-4 xl:w-4 text-slate-500 pointer-events-none z-10" />
@@ -102,9 +102,9 @@ export function Navbar() {
             >
               <option value="en">🇬🇧 English</option>
               <option value="pid">🇳🇬 Pidgin</option>
-              <option value="fr">🇫🇷 French</option>
+              <option value="fr">🇫 French</option>
               <option value="de">🇩🇪 German</option>
-              <option value="zh">🇨🇳 Chinese</option>
+              <option value="zh">🇨 Chinese</option>
               <option value="ar">🇸🇦 Arabic</option>
             </select>
             <div className="absolute right-2 xl:right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
@@ -115,7 +115,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* ✅ UPDATED: Mobile Toggles (shows on lg and below now to save space) */}
+        {/* Mobile Toggles */}
         <div className="flex items-center gap-2 lg:hidden shrink-0">
           <Button 
             variant="ghost" 
@@ -182,11 +182,11 @@ export function Navbar() {
                     onChange={(e) => setLang(e.target.value as any)}
                     className="appearance-none w-full bg-white border border-slate-200 text-slate-800 text-sm font-bold rounded-xl py-3 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all cursor-pointer"
                   >
-                    <option value="en">🇬🇧 English</option>
+                    <option value="en">🇬 English</option>
                     <option value="pid">🇳🇬 Pidgin</option>
-                    <option value="fr">🇫🇷 French</option>
+                    <option value="fr">🇫 French</option>
                     <option value="de">🇩🇪 German</option>
-                    <option value="zh">🇨🇳 Chinese</option>
+                    <option value="zh">🇨 Chinese</option>
                     <option value="ar">🇸🇦 Arabic</option>
                   </select>
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">

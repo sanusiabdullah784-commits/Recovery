@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Hash, Search, AlertCircle, Flag, Scale, Phone, ArrowRight, Lock, FileCheck, Headphones, Check } from "lucide-react";
+import { ShieldCheck, Hash, Search, AlertCircle, Flag, Scale, Phone, ArrowRight, Lock, FileCheck, Headphones, Check, Car } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { LiveRecoveryToast } from "@/components/LiveRecoveryToast";
@@ -32,13 +32,16 @@ export function Hero() {
     }
   };
 
+  // ✅ UPDATED: Links to /vehicle-tracking so they see the 10 items first
   const quickActions = [
     { href: "/track", label: t("action_track"), icon: Hash, bgColor: "bg-amber-500/10", iconColor: "text-amber-600", hoverGlow: "group-hover:shadow-amber-500/20", borderColor: "group-hover:border-amber-500/30" },
     { href: "/report", label: t("action_report"), icon: Search, bgColor: "bg-emerald-500/10", iconColor: "text-emerald-600", hoverGlow: "group-hover:shadow-emerald-500/20", borderColor: "group-hover:border-emerald-500/30" },
     { href: "/complaints", label: t("action_complaint"), icon: AlertCircle, bgColor: "bg-orange-500/10", iconColor: "text-orange-600", hoverGlow: "group-hover:shadow-orange-500/20", borderColor: "group-hover:border-orange-500/30" },
-    { href: "/flagged", label: t("action_flagged"), icon: Flag, bgColor: "bg-red-500/10", iconColor: "text-red-600", hoverGlow: "group-hover:shadow-red-500/20", borderColor: "group-hover:border-red-500/30" },
-    { href: "/legal-services", label: t("action_legal"), icon: Scale, bgColor: "bg-purple-500/10", iconColor: "text-purple-600", hoverGlow: "group-hover:shadow-purple-500/20", borderColor: "group-hover:border-purple-500/30" },
+    { href: "/claim", label: t("action_flagged"), icon: Flag, bgColor: "bg-purple-500/10", iconColor: "text-purple-600", hoverGlow: "group-hover:shadow-purple-500/20", borderColor: "group-hover:border-purple-500/30" },
+    { href: "/flagged", label: t("action_flagged_items"), icon: Flag, bgColor: "bg-red-500/10", iconColor: "text-red-600", hoverGlow: "group-hover:shadow-red-500/20", borderColor: "group-hover:border-red-500/30" },
+    { href: "/legal-services", label: t("action_legal"), icon: Scale, bgColor: "bg-indigo-500/10", iconColor: "text-indigo-600", hoverGlow: "group-hover:shadow-indigo-500/20", borderColor: "group-hover:border-indigo-500/30" },
     { href: "/contact", label: t("action_contact"), icon: Phone, bgColor: "bg-slate-500/10", iconColor: "text-slate-600", hoverGlow: "group-hover:shadow-slate-500/20", borderColor: "group-hover:border-slate-500/30" },
+    { href: "/vehicle-tracking", label: "Vehicle/Motorbike Tracking", icon: Car, bgColor: "bg-cyan-500/10", iconColor: "text-cyan-600", hoverGlow: "group-hover:shadow-cyan-500/20", borderColor: "group-hover:border-cyan-500/30" }, // ✅ BACK TO /vehicle-tracking
   ];
 
   const trustBadges = [
@@ -58,7 +61,7 @@ export function Hero() {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.4 } }
+    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 4.2 } }
   };
 
   const cardVariants = {
@@ -91,17 +94,65 @@ export function Hero() {
 
       <div className="container mx-auto max-w-5xl text-center relative z-10">
         
-        {/* ✅ PREMIUM "FALLING RAIN" CORE SERVICES SECTION */}
+        {/* ✅ 1. BADGE */}
+        <motion.div initial={{ opacity: 0, rotateY: -90 }} animate={{ opacity: 1, rotateY: 0 }} transition={{ duration: 0.8, type: "spring", delay: 0.2 }} className="inline-flex items-center justify-center mb-6 md:mb-8">
+          <div className="px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-amber-50 to-yellow-50 backdrop-blur-xl rounded-full border border-amber-200/50 shadow-lg shadow-amber-500/5 flex items-center gap-2 sm:gap-3">
+            <div className="p-1 sm:p-1.5 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full shadow-md shadow-amber-500/30">
+              <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+            </div>
+            <span className="text-xs sm:text-sm font-bold text-amber-900 whitespace-nowrap">
+              {t("hero_badge")}
+            </span>
+          </div>
+        </motion.div>
+
+        {/* ✅ 2. COMPANY NAME */}
+        <div className="mb-8 md:mb-12 flex flex-col items-center justify-center overflow-hidden">
+          <div className="flex flex-wrap justify-center gap-x-1 sm:gap-x-2 mb-1">
+            {companyNamePart1.split("").map((char, i) => (
+              <motion.span 
+                key={`hr-${i}`} 
+                initial={{ y: -150, opacity: 0, filter: "blur(10px)" }} 
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }} 
+                transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.4 + i * 0.02 }} 
+                className="inline-block text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-[0.1em] text-slate-900"
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-1 sm:gap-x-2">
+            {companyNamePart2.split("").map((char, i) => (
+              <motion.span 
+                key={`sl-${i}`} 
+                initial={{ y: -150, opacity: 0, filter: "blur(10px)" }} 
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }} 
+                transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.9 + i * 0.02 }} 
+                className="inline-block text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-[0.1em] bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent"
+              >
+                {char === " " ? "\u00A0" : char}
+              </motion.span>
+            ))}
+          </div>
+          <motion.div 
+            initial={{ scaleX: 0 }} 
+            animate={{ scaleX: 1 }} 
+            transition={{ duration: 1, delay: 1.4, ease: "easeOut" }}
+            className="w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-4 rounded-full origin-center" 
+          />
+        </div>
+
+        {/* ✅ 3. CORE SERVICES */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.8, delay: 1.6 }}
           className="mb-10 md:mb-14 px-2"
         >
           <motion.h3 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 1.7 }}
             className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 mb-8 tracking-tight"
           >
             {t("core_services_title")}
@@ -117,7 +168,7 @@ export function Hero() {
                   type: "spring",
                   stiffness: 120,
                   damping: 12,
-                  delay: 0.5 + index * 0.15 
+                  delay: 1.9 + index * 0.15 
                 }}
                 className="flex items-center gap-4 w-full justify-center group"
               >
@@ -133,77 +184,34 @@ export function Hero() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, rotateY: -90 }} animate={{ opacity: 1, rotateY: 0 }} transition={{ duration: 0.8, type: "spring" }} className="inline-flex items-center justify-center mb-6 md:mb-8">
-          <div className="px-3 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-amber-50 to-yellow-50 backdrop-blur-xl rounded-full border border-amber-200/50 shadow-lg shadow-amber-500/5 flex items-center gap-2 sm:gap-3">
-            <div className="p-1 sm:p-1.5 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full shadow-md shadow-amber-500/30">
-              <ShieldCheck className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-            </div>
-            <span className="text-xs sm:text-sm font-bold text-amber-900 whitespace-nowrap">
-              {t("hero_badge")}
-            </span>
-          </div>
-        </motion.div>
-
-        <div className="mb-4 md:mb-8 flex flex-col items-center justify-center overflow-hidden">
-          <div className="flex flex-wrap justify-center gap-x-1 sm:gap-x-2 mb-1">
-            {companyNamePart1.split("").map((char, i) => (
-              <motion.span 
-                key={`hr-${i}`} 
-                initial={{ y: -150, opacity: 0, filter: "blur(10px)" }} 
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }} 
-                transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.8 + i * 0.02 }} 
-                className="inline-block text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-[0.1em] text-slate-900"
-              >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
-            ))}
-          </div>
-          <div className="flex flex-wrap justify-center gap-x-1 sm:gap-x-2">
-            {companyNamePart2.split("").map((char, i) => (
-              <motion.span 
-                key={`sl-${i}`} 
-                initial={{ y: -150, opacity: 0, filter: "blur(10px)" }} 
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }} 
-                transition={{ type: "spring", stiffness: 150, damping: 15, delay: 1.3 + i * 0.02 }} 
-                className="inline-block text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-[0.1em] bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent"
-              >
-                {char === " " ? "\u00A0" : char}
-              </motion.span>
-            ))}
-          </div>
-          <motion.div 
-            initial={{ scaleX: 0 }} 
-            animate={{ scaleX: 1 }} 
-            transition={{ duration: 1, delay: 1.9, ease: "easeOut" }}
-            className="w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-4 rounded-full origin-center" 
-          />
-        </div>
-
+        {/* ✅ 4. HEADLINE */}
         <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter mb-4 md:mb-6 leading-[1.1]">
           <div className="overflow-hidden mb-1 md:mb-2">
             {line1.split("").map((char, i) => (
-              <motion.span key={`l1-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 2.1 + i * 0.025 }} className="inline-block text-slate-900 drop-shadow-sm" style={{ display: 'inline-block' }}>
+              <motion.span key={`l1-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 2.5 + i * 0.025 }} className="inline-block text-slate-900 drop-shadow-sm" style={{ display: 'inline-block' }}>
                 {char === " " ? "\u00A0" : char}
               </motion.span>
             ))}
           </div>
           <div className="overflow-hidden">
             {line2.split("").map((char, i) => (
-              <motion.span key={`l2-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 2.5 + i * 0.04 }} className="inline-block bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(217,169,56,0.3)]" style={{ display: 'inline-block' }}>
+              <motion.span key={`l2-${i}`} initial={{ y: -150, opacity: 0, filter: "blur(10px)", rotate: Math.random() * 10 - 5 }} animate={{ y: 0, opacity: 1, filter: "blur(0px)", rotate: 0 }} transition={{ type: "spring", stiffness: 120, damping: 12, delay: 3.0 + i * 0.04 }} className="inline-block bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(217,169,56,0.3)]" style={{ display: 'inline-block' }}>
                 {char === " " ? "\u00A0" : char}
               </motion.span>
             ))}
           </div>
         </h1>
 
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 3.1 }} className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-slate-800 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed px-2">
+        {/* ✅ 5. SUBTITLE */}
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 3.4 }} className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-slate-800 max-w-2xl mx-auto mb-6 md:mb-8 leading-relaxed px-2">
           {t("hero_subtitle")}
         </motion.p>
 
+        {/* ✅ 6. TRUST BADGES */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 3.2 }}
+          transition={{ duration: 0.8, delay: 3.6 }}
           className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-8 md:mb-10 px-2"
         >
           {trustBadges.map((badge, index) => (
@@ -211,7 +219,7 @@ export function Hero() {
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 3.3 + index * 0.1, duration: 0.4 }}
+              transition={{ delay: 3.7 + index * 0.1, duration: 0.4 }}
               whileHover={{ y: -2, borderColor: "rgba(217, 169, 56, 0.4)" }}
               className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-amber-50/50 border border-amber-200/30 rounded-full backdrop-blur-sm transition-all duration-300"
             >
@@ -223,10 +231,11 @@ export function Hero() {
           ))}
         </motion.div>
 
+        {/* ✅ 7. SEARCH FORM */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 3.4 }}
+          transition={{ duration: 0.8, delay: 3.8 }}
           className="w-full max-w-2xl mx-auto mb-8 md:mb-12 px-2"
         >
           <form onSubmit={handleTrackSubmit} className="relative flex flex-col sm:flex-row gap-2 sm:gap-3 p-2 sm:p-3 bg-white/80 backdrop-blur-xl border border-amber-200/40 rounded-2xl shadow-xl shadow-amber-500/5 focus-within:border-amber-400/60 focus-within:ring-2 focus-within:ring-amber-400/20 transition-all duration-300">
@@ -254,7 +263,8 @@ export function Hero() {
           </p>
         </motion.div>
 
-        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5 w-full max-w-4xl mx-auto perspective-[1000px] px-2">
+        {/* ✅ 8. QUICK ACTIONS */}
+        <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 w-full max-w-5xl mx-auto perspective-[1000px] px-2">
           {quickActions.map((action) => (
             <motion.div key={action.label} variants={cardVariants} whileHover={{ y: -10, scale: 1.03, rotateX: 5, rotateY: -2, transition: { type: "spring", stiffness: 300, damping: 20 } }} whileTap={{ scale: 0.97 }} className="group cursor-pointer">
               <Link href={action.href} className="block h-full">

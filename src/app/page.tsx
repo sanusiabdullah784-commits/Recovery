@@ -5,6 +5,7 @@ import { CoreObjectives } from "@/components/CoreObjectives";
 import { HowItWorks } from "@/components/HowItWorks";
 import { StatsCounter } from "@/components/StatsCounter";
 import { Testimonials } from "@/components/Testimonials";
+import { TeamSection } from "@/components/TeamSection"; // ✅ Added Team Section Import
 import { VideoTestimonials } from "@/components/VideoTestimonials";
 import { BadgeSystem } from "@/components/BadgeSystem";
 import { Leaderboard } from "@/components/Leaderboard";
@@ -23,6 +24,10 @@ export default function Home() {
       <HowItWorks />
       <StatsCounter />
       <Testimonials />
+      
+      {/* ✅ Team Section placed exactly above the Video Section */}
+      <TeamSection /> 
+      
       <VideoTestimonials />
       <BadgeSystem />
       <Leaderboard />

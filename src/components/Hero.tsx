@@ -32,7 +32,6 @@ export function Hero() {
     }
   };
 
-  // ✅ UPDATED: Links to /vehicle-tracking so they see the 10 items first
   const quickActions = [
     { href: "/track", label: t("action_track"), icon: Hash, bgColor: "bg-amber-500/10", iconColor: "text-amber-600", hoverGlow: "group-hover:shadow-amber-500/20", borderColor: "group-hover:border-amber-500/30" },
     { href: "/report", label: t("action_report"), icon: Search, bgColor: "bg-emerald-500/10", iconColor: "text-emerald-600", hoverGlow: "group-hover:shadow-emerald-500/20", borderColor: "group-hover:border-emerald-500/30" },
@@ -41,7 +40,7 @@ export function Hero() {
     { href: "/flagged", label: t("action_flagged_items"), icon: Flag, bgColor: "bg-red-500/10", iconColor: "text-red-600", hoverGlow: "group-hover:shadow-red-500/20", borderColor: "group-hover:border-red-500/30" },
     { href: "/legal-services", label: t("action_legal"), icon: Scale, bgColor: "bg-indigo-500/10", iconColor: "text-indigo-600", hoverGlow: "group-hover:shadow-indigo-500/20", borderColor: "group-hover:border-indigo-500/30" },
     { href: "/contact", label: t("action_contact"), icon: Phone, bgColor: "bg-slate-500/10", iconColor: "text-slate-600", hoverGlow: "group-hover:shadow-slate-500/20", borderColor: "group-hover:border-slate-500/30" },
-    { href: "/vehicle-tracking", label: "Vehicle/Motorbike Tracking", icon: Car, bgColor: "bg-cyan-500/10", iconColor: "text-cyan-600", hoverGlow: "group-hover:shadow-cyan-500/20", borderColor: "group-hover:border-cyan-500/30" }, // ✅ BACK TO /vehicle-tracking
+    { href: "/vehicle-tracking", label: "Tracker Installation", icon: Car, bgColor: "bg-cyan-500/10", iconColor: "text-cyan-600", hoverGlow: "group-hover:shadow-cyan-500/20", borderColor: "group-hover:border-cyan-500/30" },
   ];
 
   const trustBadges = [
@@ -51,12 +50,14 @@ export function Hero() {
     { icon: Headphones, label: t("badge_support") },
   ];
 
+  // ✅ UPDATED: Added Tracker Installation to the Core Services list
   const coreServices = [
     t("core_service_lost_found"),
     t("core_service_litigation"),
     t("core_service_arbitration"),
     t("core_service_adr"),
-    t("core_service_odr")
+    t("core_service_odr"),
+    t("Tracker_installation") // ✅ NEW
   ];
 
   const containerVariants = {

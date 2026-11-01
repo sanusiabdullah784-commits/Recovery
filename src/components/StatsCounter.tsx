@@ -119,11 +119,12 @@ function StatCard({ icon, endValue, suffix, label, delay }: {
 export function StatsCounter() {
   const { t } = useLanguage();
 
+  // ✅ UPDATED: New scores provided by the client
   const stats = [
-    { icon: <Package className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 0, suffix: "+", label: t("Items Recovered", "Items Recovered"), delay: 0.1 },
-    { icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 0, suffix: "+", label: t("Happy Clients", "Happy Clients"), delay: 0.2 },
-    { icon: <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 0, suffix: "%", label: t("Success Rate", "Success Rate"), delay: 0.3 },
-    { icon: <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 0, suffix: "+", label: t("States Covered", "States Covered"), delay: 0.4 },
+    { icon: <Package className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 9, suffix: "+", label: t("Items Recovered", "Items Recovered"), delay: 0.1 },
+    { icon: <Users className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 20, suffix: "+", label: t("Happy Clients", "Happy Clients"), delay: 0.2 },
+    { icon: <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 50, suffix: "%", label: t("Success Rate", "Success Rate"), delay: 0.3 },
+    { icon: <MapPin className="h-5 w-5 sm:h-6 sm:w-6" />, endValue: 5, suffix: "+", label: t("States Covered", "States Covered"), delay: 0.4 },
   ];
 
   const partners = [

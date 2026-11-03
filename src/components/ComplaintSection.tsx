@@ -6,7 +6,7 @@ import {
   ShieldCheck, Lock, Mail, User, Package, MapPin, Calendar, 
   Upload, AlertCircle, CheckCircle, ArrowRight, LogIn, UserPlus, Scale,
   FileText, X, Mic, MicOff, ChevronRight, ChevronLeft, Check, CreditCard, Loader2,
-  Eye, EyeOff 
+  Eye, EyeOff, Building2, Copy 
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { createClient } from "@supabase/supabase-js";
@@ -98,9 +98,6 @@ export function ComplaintSection() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"paystack" | "flutterwave" | "paypal" | null>(null);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -242,7 +239,6 @@ export function ComplaintSection() {
     setFullName("");
     setPhone("");
     setEmail("");
-    setSelectedPaymentMethod(null);
     setPaymentReference("");
     setTrackingId("");
   };
@@ -285,7 +281,7 @@ export function ComplaintSection() {
 
     if (dbError) {
       console.error("❌ Supabase Database Insert Error:", dbError);
-      alert(`⚠️ Payment was successful, but there was an error saving your details.\n\nError: ${dbError.message}\n\nTracking ID: ${tId}`);
+      alert(`⚠️ There was an error saving your details.\n\nError: ${dbError.message}\n\nTracking ID: ${tId}`);
       setIsSaving(false);
     } else {
       setIsSaving(false);
@@ -352,143 +348,9 @@ export function ComplaintSection() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handlePaystackPayment = () => {
-    if (!selectedCategory) return;
-    setIsProcessingPayment(true);
-    const handler = (window as any).PaystackPop.setup({
-      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      email: email,
-      amount: categories.find(c => c.id === selectedCategory)?.priceNum * 100,
-      currency: "NGN",
-      ref: "HLRS_" + Date.now() + "_" + Math.floor(Math.random() * 1000000),
-      metadata: {
-        custom_fields: [
-          { display_name: "Full Name", variable_name: "full_name", value: fullName },
-          { display_name: "Phone", variable_name: "phone", value: phone },
-          { display_name: "Category", variable_name: "category", value: selectedCategory },
-          { display_name: "Item", variable_name: "item", value: selectedItem === "Other" ? customItem : selectedItem }
-        ]
-      },
-      callback: (response: any) => {
-        const tId = generateTrackingId();
-        setPaymentReference(response.reference);
-        saveComplaintToSupabase(response.reference, tId, 'paystack');
-      },
-      onClose: () => {
-        setIsProcessingPayment(false);
-      }
-    });
-    handler.openIframe();
-  };
-
-  const handleFlutterwavePayment = () => {
-    if (!selectedCategory) return;
-    setIsProcessingPayment(true);
-    const tx_ref = "HLRS_FLW_" + Date.now() + "_" + Math.floor(Math.random() * 1000000);
-    
-    (window as any).FlutterwaveCheckout({
-      public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || "FLWPUBK_TEST-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-XID",
-      tx_ref: tx_ref,
-      amount: categories.find(c => c.id === selectedCategory)?.priceNum || 0,
-      currency: "NGN",
-      payment_options: "card, mobilemoney, bank, ussd",
-      customer: {
-        email: email,
-        phone_number: phone,
-        name: fullName,
-      },
-      customizations: {
-        title: "Homeland Recovery Services",
-        description: `Payment for ${selectedCategory} - ${selectedItem === "Other" ? customItem : selectedItem}`,
-        logo: "https://your-logo-url.com/logo.png",
-      },
-      callback: (response: any) => {
-        const isSuccess = response.status === "successful" || response.status === "success" || response.transaction_id;
-        if (isSuccess) {
-          const ref = response.transaction_id || response.tx_ref || "FLW-SUCCESS";
-          const tId = generateTrackingId();
-          setPaymentReference(ref);
-          saveComplaintToSupabase(ref, tId, 'flutterwave');
-        } else {
-          setIsProcessingPayment(false);
-          if (response.status !== "cancelled" && response.status !== "incomplete") {
-            alert("Payment was not successful. Please check your card details and try again.");
-          }
-        }
-      },
-      onclose: () => {
-        setIsProcessingPayment(false);
-      }
-    });
-  };
-
-  const handlePayPalPayment = () => {
-    if (!selectedCategory || !(window as any).paypal) return;
-    setIsProcessingPayment(true);
-    const amount = categories.find(c => c.id === selectedCategory)?.priceNum || 0;
-    
-    (window as any).paypal.Buttons({
-      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
-      createOrder: (data: any, actions: any) => {
-        return actions.order.create({
-          purchase_units: [{
-            amount: { value: (amount / 750).toFixed(2), currency_code: 'USD' },
-            description: `Homeland Recovery - ${selectedCategory}`
-          }]
-        });
-      },
-      onApprove: (data: any, actions: any) => {
-        return actions.order.capture().then((details: any) => {
-          const tId = generateTrackingId();
-          setPaymentReference(details.id);
-          saveComplaintToSupabase(details.id, tId, 'paypal');
-        });
-      },
-      onCancel: () => { setIsProcessingPayment(false); },
-      onError: (err: any) => {
-        console.error("PayPal error:", err);
-        setIsProcessingPayment(false);
-        alert("Payment failed. Please try again.");
-      }
-    }).render('#paypal-button-container');
-  };
-
-  const initiatePayment = () => {
-    if (!selectedPaymentMethod) return;
-    switch (selectedPaymentMethod) {
-      case "paystack": handlePaystackPayment(); break;
-      case "flutterwave": handleFlutterwavePayment(); break;
-      case "paypal": handlePayPalPayment(); break;
-    }
-  };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (!document.getElementById("paystack-js")) {
-        const paystackScript = document.createElement("script");
-        paystackScript.src = "https://js.paystack.co/v1/inline.js";
-        paystackScript.id = "paystack-js";
-        document.body.appendChild(paystackScript);
-      }
-      if (!document.getElementById("flutterwave-js")) {
-        const flutterwaveScript = document.createElement("script");
-        flutterwaveScript.src = "https://checkout.flutterwave.com/v3.js";
-        flutterwaveScript.id = "flutterwave-js";
-        document.body.appendChild(flutterwaveScript);
-      }
-      if (!document.getElementById("paypal-js")) {
-        const paypalScript = document.createElement("script");
-        paypalScript.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test"}&currency=USD`;
-        paypalScript.id = "paypal-js";
-        document.body.appendChild(paypalScript);
-      }
-    }
-  }, []);
-
   const canProceedStep1 = selectedCategory !== null;
   const canProceedStep2 = selectedItem !== "" && (selectedItem !== "Other" || customItem.trim() !== "") && description.trim() !== "";
   const canProceedStep3 = fullName.trim() !== "" && phone.trim() !== "" && email.trim() !== "";
-  const canProceedStep4 = selectedPaymentMethod !== null;
 
   const nextStep = () => {
     if (currentStep === 1 && canProceedStep1) setCurrentStep(2);
@@ -670,7 +532,6 @@ export function ComplaintSection() {
           ) : (
             <motion.div key="complaint-form" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }} transition={{ duration: 0.6, type: "spring", stiffness: 100 }} className={`relative overflow-hidden rounded-2xl sm:rounded-[2rem] border ${glassBorder} ${glassBg} backdrop-blur-2xl shadow-2xl shadow-purple-900/10 p-6 sm:p-8 md:p-10`}>
               
-              {/* ✅ ADDED: Sign Out button so you can easily test the login screen again */}
               <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20">
                 <button 
                   onClick={handleSignOut}
@@ -695,12 +556,12 @@ export function ComplaintSection() {
                     <div className="inline-flex items-center justify-center p-4 bg-emerald-100 rounded-full mb-6 border border-emerald-200">
                       <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12 text-emerald-600" />
                     </div>
-                    <h2 className={`text-2xl sm:text-3xl font-extrabold mb-4 ${textMain}`}>{t("Payment Successful!", "Payment Successful!")}</h2>
-                    <p className={`${textMuted} max-w-lg mx-auto mb-4 text-sm sm:text-base px-2`}>{t("Your complaint has been lodged and payment received.", "Your complaint don lodge and we don receive your payment.")}</p>
+                    <h2 className={`text-2xl sm:text-3xl font-extrabold mb-4 ${textMain}`}>{t("Complaint Submitted!", "Complaint Submitted!")}</h2>
+                    <p className={`${textMuted} max-w-lg mx-auto mb-4 text-sm sm:text-base px-2`}>{t("Your complaint has been lodged. We will verify your bank transfer shortly.", "Your complaint don lodge. We go verify your bank transfer shortly.")}</p>
                     
                     <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-6 max-w-md mx-auto space-y-3">
                       <div>
-                        <p className="text-xs text-purple-600 font-semibold mb-1">{t("Payment Reference", "Payment Reference")}:</p>
+                        <p className="text-xs text-purple-600 font-semibold mb-1">{t("Payment Reference Provided", "Payment Reference Provided")}:</p>
                         <p className="text-sm font-mono font-bold text-slate-900 break-all">{paymentReference}</p>
                       </div>
                       <div className="pt-3 border-t border-purple-200">
@@ -753,7 +614,6 @@ export function ComplaintSection() {
                             <div className="inline-flex items-center justify-center p-3 bg-amber-100 rounded-full mb-4 border border-amber-200">
                               <AlertCircle className="h-6 w-6 text-amber-600" />
                             </div>
-                            {/* ✅ UPDATED: Changed "Select Category & Fee" to "Select Category & Registration Fee" */}
                             <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-3 ${textMain}`}>{t("Select Category & Registration Fee", "Select Category & Registration Fee")}</h2>
                             <p className={`${textMuted} max-w-xl mx-auto text-sm sm:text-base`}>{t("Choose the category that best matches your complaint.", "Choose the category wey best match your complaint.")}</p>
                           </div>
@@ -915,56 +775,118 @@ export function ComplaintSection() {
                         </motion.div>
                       )}
 
+                      {/* ✅ UPDATED: Bank Transfer Payment Step */}
                       {currentStep === 4 && (
                         <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
                           <div className="text-center mb-6 sm:mb-8 px-2">
                             <div className="inline-flex items-center justify-center p-3 bg-purple-100 rounded-full mb-4 border border-purple-200">
-                              <CreditCard className="h-6 w-6 text-purple-600" />
+                              <Building2 className="h-6 w-6 text-purple-600" />
                             </div>
-                            <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-3 ${textMain}`}>{t("Select Payment Method", "Select Payment Method")}</h2>
-                            <p className={`${textMuted} max-w-xl mx-auto text-sm sm:text-base`}>{t("Choose your preferred payment gateway to complete the registration.", "Choose your preferred payment gateway to complete the registration.")}</p>
+                            <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight mb-3 ${textMain}`}>{t("Bank Transfer Payment", "Bank Transfer Payment")}</h2>
+                            <p className={`${textMuted} max-w-xl mx-auto text-sm sm:text-base`}>{t("Please transfer the registration fee to one of the accounts below.", "Abeg transfer the registration fee to one of the accounts below.")}</p>
                           </div>
+                          
                           <div className="space-y-4 mb-8 px-2 sm:px-0">
-                            <motion.button type="button" onClick={() => setSelectedPaymentMethod("paystack")} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`w-full p-5 rounded-2xl border text-left transition-all duration-300 ${selectedPaymentMethod === "paystack" ? "bg-purple-100 border-purple-500 shadow-md" : "bg-white/60 border-slate-200 hover:border-purple-300 hover:bg-white/80"}`}>
-                              <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-xl ${selectedPaymentMethod === "paystack" ? "bg-purple-500/20" : "bg-slate-100"}`}><CreditCard className={`h-6 w-6 ${selectedPaymentMethod === "paystack" ? "text-purple-700" : "text-slate-500"}`} /></div>
-                                <div className="flex-1">
-                                  <h4 className={`font-bold text-base ${selectedPaymentMethod === "paystack" ? "text-slate-900" : "text-slate-700"}`}>Paystack</h4>
-                                  <p className="text-xs text-slate-500 mt-0.5">{t("Pay with Card, Bank Transfer, or USSD", "Pay with Card, Bank Transfer, or USSD")}</p>
-                                </div>
-                                {selectedPaymentMethod === "paystack" && <Check className="h-5 w-5 text-purple-600" />}
+                            {/* Access Bank */}
+                            <div className="p-5 rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-sm">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                                  <Building2 className="h-5 w-5 text-purple-600" /> Access Bank
+                                </h4>
+                                <span className="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-1 rounded-md">Option 1</span>
                               </div>
-                            </motion.button>
-                            <motion.button type="button" onClick={() => setSelectedPaymentMethod("flutterwave")} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`w-full p-5 rounded-2xl border text-left transition-all duration-300 ${selectedPaymentMethod === "flutterwave" ? "bg-purple-100 border-purple-500 shadow-md" : "bg-white/60 border-slate-200 hover:border-purple-300 hover:bg-white/80"}`}>
-                              <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-xl ${selectedPaymentMethod === "flutterwave" ? "bg-purple-500/20" : "bg-slate-100"}`}><CreditCard className={`h-6 w-6 ${selectedPaymentMethod === "flutterwave" ? "text-purple-700" : "text-slate-500"}`} /></div>
-                                <div className="flex-1">
-                                  <h4 className={`font-bold text-base ${selectedPaymentMethod === "flutterwave" ? "text-slate-900" : "text-slate-700"}`}>Flutterwave</h4>
-                                  <p className="text-xs text-slate-500 mt-0.5">{t("Pay with Card, Mobile Money, or Bank", "Pay with Card, Mobile Money, or Bank")}</p>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                  <div>
+                                    <p className="text-xs text-slate-500 font-medium">Account Name</p>
+                                    <p className="text-sm font-bold text-slate-900">Homeland Recovery Services LTD.</p>
+                                  </div>
                                 </div>
-                                {selectedPaymentMethod === "flutterwave" && <Check className="h-5 w-5 text-purple-600" />}
-                              </div>
-                            </motion.button>
-                            <motion.button type="button" onClick={() => setSelectedPaymentMethod("paypal")} whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }} className={`w-full p-5 rounded-2xl border text-left transition-all duration-300 ${selectedPaymentMethod === "paypal" ? "bg-purple-100 border-purple-500 shadow-md" : "bg-white/60 border-slate-200 hover:border-purple-300 hover:bg-white/80"}`}>
-                              <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-xl ${selectedPaymentMethod === "paypal" ? "bg-purple-500/20" : "bg-slate-100"}`}><CreditCard className={`h-6 w-6 ${selectedPaymentMethod === "paypal" ? "text-purple-700" : "text-slate-500"}`} /></div>
-                                <div className="flex-1">
-                                  <h4 className={`font-bold text-base ${selectedPaymentMethod === "paypal" ? "text-slate-900" : "text-slate-700"}`}>PayPal</h4>
-                                  <p className="text-xs text-slate-500 mt-0.5">{t("Pay with PayPal account (International)", "Pay with PayPal account (International)")}</p>
+                                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                  <div>
+                                    <p className="text-xs text-slate-500 font-medium">Account Number</p>
+                                    <p className="text-lg font-mono font-extrabold text-slate-900 tracking-wider">1992643943</p>
+                                  </div>
+                                  <button 
+                                    onClick={() => { navigator.clipboard.writeText("1992643943"); alert("Account number copied!"); }}
+                                    className="p-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+                                    title="Copy Account Number"
+                                  >
+                                    <Copy className="h-5 w-5" />
+                                  </button>
                                 </div>
-                                {selectedPaymentMethod === "paypal" && <Check className="h-5 w-5 text-purple-600" />}
                               </div>
-                            </motion.button>
+                            </div>
+
+                            {/* Moniepoint MFB */}
+                            <div className="p-5 rounded-2xl border border-slate-200 bg-white/60 backdrop-blur-sm">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-bold text-slate-900 flex items-center gap-2">
+                                  <Building2 className="h-5 w-5 text-purple-600" /> Moniepoint MFB
+                                </h4>
+                                <span className="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-1 rounded-md">Option 2</span>
+                              </div>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                  <div>
+                                    <p className="text-xs text-slate-500 font-medium">Account Name</p>
+                                    <p className="text-sm font-bold text-slate-900">Homeland Recovery Services Limited</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                  <div>
+                                    <p className="text-xs text-slate-500 font-medium">Account Number</p>
+                                    <p className="text-lg font-mono font-extrabold text-slate-900 tracking-wider">6749514407</p>
+                                  </div>
+                                  <button 
+                                    onClick={() => { navigator.clipboard.writeText("6749514407"); alert("Account number copied!"); }}
+                                    className="p-2 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+                                    title="Copy Account Number"
+                                  >
+                                    <Copy className="h-5 w-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Payment Reference Input */}
+                            <div className="mt-6 p-5 rounded-2xl border border-amber-200 bg-amber-50/50">
+                              <label className="text-sm font-bold text-amber-800 mb-2 block flex items-center gap-2">
+                                <FileText className="h-4 w-4" /> Enter Payment Reference / Sender Name
+                              </label>
+                              <p className="text-xs text-amber-700 mb-3">After making the transfer, please enter the transaction reference or the name of the sender so we can verify your payment manually.</p>
+                              <input 
+                                required
+                                type="text" 
+                                value={paymentReference} 
+                                onChange={(e) => setPaymentReference(e.target.value)} 
+                                placeholder="e.g., T2310241530 or John Doe" 
+                                className={`w-full px-4 py-3 bg-white border border-amber-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all text-sm sm:text-base font-mono`} 
+                              />
+                            </div>
                           </div>
+
                           <div className="flex items-center justify-between gap-4 px-2 sm:px-0">
                             <button type="button" onClick={prevStep} className="px-6 py-3 sm:py-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition-all duration-300 flex items-center gap-2 text-sm sm:text-base">
                               <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" /> {t("Back", "Back")}
                             </button>
-                            <button type="button" onClick={initiatePayment} disabled={!canProceedStep4 || isProcessingPayment} className="px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm sm:text-base">
-                              {isProcessingPayment ? (
-                                <><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />{t("Processing...", "Processing...")}</>
+                            <button 
+                              type="button" 
+                              onClick={() => {
+                                if (!paymentReference.trim()) {
+                                  alert("Please enter your payment reference or sender name so we can verify your transfer.");
+                                  return;
+                                }
+                                const tId = generateTrackingId();
+                                saveComplaintToSupabase(paymentReference, tId, 'bank_transfer');
+                              }} 
+                              disabled={isSaving} 
+                              className="px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm sm:text-base"
+                            >
+                              {isSaving ? (
+                                <><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full" /> Submitting...</>
                               ) : (
-                                <>{t("Pay Now", "Pay Now")}<ArrowRight className="h-5 w-5" /></>
+                                <>{t("I Have Made the Transfer", "I Don Transfer")} <Check className="h-5 w-5" /></>
                               )}
                             </button>
                           </div>
@@ -978,7 +900,6 @@ export function ComplaintSection() {
           )}
         </AnimatePresence>
       </div>
-      <div id="paypal-button-container" className="hidden"></div>
     </section>
   );
 }

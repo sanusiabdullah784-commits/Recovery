@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PackageCheck, Search, MapPin, Calendar, FileText, Info, ShieldCheck, X, ArrowRight, User, Mail, Phone, Loader2, CheckCircle2 } from "lucide-react";
+import { 
+  PackageCheck, Search, MapPin, Calendar, FileText, Info, 
+  ShieldCheck, X, ArrowRight, User, Mail, Phone, Loader2, 
+  CheckCircle2, Building2, Copy, CreditCard 
+} from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { createClient } from "@supabase/supabase-js";
 
@@ -22,7 +26,8 @@ export function ClaimYourItemSection() {
     fullName: "",
     email: "",
     phone: "",
-    proofDetails: ""
+    proofDetails: "",
+    paymentReference: "" // ✅ ADDED
   });
   const [isSubmittingClaim, setIsSubmittingClaim] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState(false);
@@ -124,6 +129,12 @@ export function ClaimYourItemSection() {
   // ✅ Handle Claim Submission to Supabase
   const handleClaimSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!claimForm.paymentReference.trim()) {
+      alert(t("Please enter your payment reference or sender name so we can verify your transfer.", "Abeg enter your payment reference or sender name make we fit verify your transfer."));
+      return;
+    }
+
     setIsSubmittingClaim(true);
 
     try {
@@ -133,6 +144,8 @@ export function ClaimYourItemSection() {
         email: claimForm.email,
         phone: claimForm.phone,
         proof_details: claimForm.proofDetails,
+        payment_reference: claimForm.paymentReference, // ✅ ADDED
+        payment_method: "bank_transfer", // ✅ ADDED
         status: "pending"
       });
 
@@ -183,8 +196,6 @@ export function ClaimYourItemSection() {
           <p className="text-base sm:text-lg md:text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed mb-6">
             {t("Items safely received and stored in our secure warehouse awaiting their rightful owners. Search below to see if your lost property is here.", "Items wey dem safely receive and keep for our secure warehouse, wey dey wait for their rightful owners. Search below to see if your lost property dey here.")}
           </p>
-          
-          {/* ✅ REMOVED: The redundant "Claim an Item" button that was linking to /complaints and causing 404 */}
         </motion.div>
 
         {/* Registration Fee Categories */}
@@ -338,7 +349,7 @@ export function ClaimYourItemSection() {
                     onClick={() => {
                       setClaimingItem(item);
                       setClaimSuccess(false);
-                      setClaimForm({ fullName: "", email: "", phone: "", proofDetails: "" });
+                      setClaimForm({ fullName: "", email: "", phone: "", proofDetails: "", paymentReference: "" });
                     }}
                     className="w-full py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white font-bold rounded-xl shadow-lg shadow-purple-500/20 transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-xl group-hover:shadow-purple-500/30 text-sm sm:text-base"
                   >
@@ -455,6 +466,89 @@ export function ClaimYourItemSection() {
                     />
                   </div>
 
+                  {/* ✅ NEW: Bank Transfer Details */}
+                  <div className="pt-4 border-t border-white/10">
+                    <p className="text-xs text-slate-400 mb-3 text-center">{t("Please transfer the claim registration fee to one of the accounts below:", "Abeg transfer the claim registration fee to one of the accounts below:")}</p>
+                    
+                    {/* Access Bank */}
+                    <div className="p-3 rounded-xl border border-white/10 bg-white/5 mb-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-purple-400" /> Access Bank
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between bg-black/20 p-2 rounded-lg">
+                          <div>
+                            <p className="text-[10px] text-slate-400 font-medium">Account Name</p>
+                            <p className="text-xs font-bold text-white">Homeland Recovery Services LTD.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between bg-black/20 p-2 rounded-lg">
+                          <div>
+                            <p className="text-[10px] text-slate-400 font-medium">Account Number</p>
+                            <p className="text-sm font-mono font-extrabold text-white tracking-wider">1992643943</p>
+                          </div>
+                          <button 
+                            type="button"
+                            onClick={() => { navigator.clipboard.writeText("1992643943"); alert("Account number copied!"); }}
+                            className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition-colors"
+                            title="Copy Account Number"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Moniepoint MFB */}
+                    <div className="p-3 rounded-xl border border-white/10 bg-white/5 mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-purple-400" /> Moniepoint MFB
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between bg-black/20 p-2 rounded-lg">
+                          <div>
+                            <p className="text-[10px] text-slate-400 font-medium">Account Name</p>
+                            <p className="text-xs font-bold text-white">Homeland Recovery Services Limited</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between bg-black/20 p-2 rounded-lg">
+                          <div>
+                            <p className="text-[10px] text-slate-400 font-medium">Account Number</p>
+                            <p className="text-sm font-mono font-extrabold text-white tracking-wider">6749514407</p>
+                          </div>
+                          <button 
+                            type="button"
+                            onClick={() => { navigator.clipboard.writeText("6749514407"); alert("Account number copied!"); }}
+                            className="p-1.5 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition-colors"
+                            title="Copy Account Number"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment Reference Input */}
+                    <div className="relative">
+                      <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <input
+                        required
+                        type="text"
+                        value={claimForm.paymentReference}
+                        onChange={(e) => setClaimForm({ ...claimForm, paymentReference: e.target.value })}
+                        placeholder={t("Enter Payment Reference / Sender Name", "Enter Payment Reference / Sender Name")}
+                        className="w-full pl-10 pr-4 py-3 bg-white/5 border border-amber-500/30 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 transition-all text-sm font-mono"
+                      />
+                    </div>
+                    <p className="text-[10px] text-amber-400/80 mt-1.5 text-center">
+                      {t("After making the transfer, enter the transaction reference or sender name so we can verify your payment.", "After making the transfer, enter the transaction reference or sender name so we can verify your payment.")}
+                    </p>
+                  </div>
+
                   <button 
                     type="submit"
                     disabled={isSubmittingClaim}
@@ -467,8 +561,8 @@ export function ClaimYourItemSection() {
                       </>
                     ) : (
                       <>
-                        {t("Start Verification Process", "Start Verification Process")} 
-                        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                        {t("I Have Made the Transfer", "I Don Transfer")} 
+                        <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
                       </>
                     )}
                   </button>
@@ -480,7 +574,7 @@ export function ClaimYourItemSection() {
                   className="relative z-10 text-center"
                 >
                   <button 
-                    onClick={() => { setClaimingItem(null); setClaimSuccess(false); setClaimForm({ fullName: "", email: "", phone: "", proofDetails: "" }); }}
+                    onClick={() => { setClaimingItem(null); setClaimSuccess(false); setClaimForm({ fullName: "", email: "", phone: "", proofDetails: "", paymentReference: "" }); }}
                     className="w-full py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/10 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base"
                   >
                     {t("Close", "Close")}

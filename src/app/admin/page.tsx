@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, FileText, Package, CheckCircle, Clock, 
   AlertTriangle, TrendingUp, RefreshCw, ShieldCheck, 
   BarChart3, Sun, Moon, Eye, X, MapPin, Calendar, 
   User, Mail, Phone, Image as ImageIcon, CreditCard,
-  Search, Filter, XCircle, Activity, Zap, Briefcase, Flag
+  Search, Filter, XCircle, Activity, Zap, Briefcase, Flag, Plus, Loader2, Smartphone, Building2
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useLanguage } from "@/context/LanguageContext";
@@ -243,8 +244,11 @@ function ActivityFeed({ complaints, foundItems, consultations, claims, flaggedIt
 // ==========================================
 export default function AdminDashboard() {
   const { t } = useLanguage();
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [activeTab, setActiveTab] = useState<"complaints" | "found" | "consultations" | "claims" | "flagged">("complaints");
+  
+  const [activeTab, setActiveTab] = useState<"complaints" | "found" | "consultations" | "claims" | "flagged" | "security">("complaints");
   
   const [complaints, setComplaints] = useState<any[]>([]);
   const [foundItems, setFoundItems] = useState<any[]>([]);
@@ -256,8 +260,94 @@ export default function AdminDashboard() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [newFlaggedItem, setNewFlaggedItem] = useState({
+    title: "",
+    description: "",
+    reason: "",
+    location: "",
+  });
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const [mfaStep, setMfaStep] = useState<"idle" | "enroll" | "verify">("idle");
+  const [enrollData, setEnrollData] = useState<any>(null);
+  const [verifyCode, setVerifyCode] = useState("");
+  const [has2FA, setHas2FA] = useState(false);
+  const [currentFactorId, setCurrentFactorId] = useState("");
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push("/admin/login");
+      } else {
+        setIsAuthenticated(true);
+      }
+    };
+    checkAuth();
+  }, [router]);
+
+  useEffect(() => {
+    const check2FA = async () => {
+      const { data } = await supabase.auth.mfa.listFactors();
+      const totp = data?.factors?.find((f: any) => f.factor_type === 'totp' && f.status === 'verified');
+      setHas2FA(!!totp);
+      if (totp) setCurrentFactorId(totp.id);
+    };
+    if (isAuthenticated) check2FA();
+  }, [isAuthenticated]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/admin/login");
+  };
+
+  const handleEnroll2FA = async () => {
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+    if (error) {
+      alert("Failed to enroll 2FA: " + error.message);
+      return;
+    }
+    setEnrollData(data);
+    setMfaStep("enroll");
+  };
+
+  const handleVerify2FASetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.auth.mfa.verify({
+      factorId: enrollData.id,
+      code: verifyCode,
+    });
+    
+    if (error) {
+      alert("Invalid code. Please try again.");
+    } else {
+      alert("Two-Factor Authentication enabled successfully!");
+      setMfaStep("idle");
+      setHas2FA(true);
+      setCurrentFactorId(enrollData.id);
+      setVerifyCode("");
+      setEnrollData(null);
+    }
+  };
+
+  const handleDisable2FA = async () => {
+    if (!confirm("Are you sure you want to disable Two-Factor Authentication? This will make your account less secure.")) return;
+    
+    const { error } = await supabase.auth.mfa.unenroll({ factorId: currentFactorId });
+    if (error) {
+      alert("Failed to disable 2FA: " + error.message);
+    } else {
+      alert("Two-Factor Authentication disabled.");
+      setHas2FA(false);
+      setCurrentFactorId("");
+      setMfaStep("idle");
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -292,6 +382,68 @@ export default function AdminDashboard() {
       else if (type === "flagged_items") setFlaggedItems(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
     }
     setUpdatingId(null);
+  };
+
+  const handleAddFlaggedItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    let fileUrl = null;
+
+    try {
+      if (selectedImage) {
+        const fileExt = selectedImage.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `flagged-${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('flagged-items-images')
+          .upload(filePath, selectedImage, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error("Error uploading image:", uploadError);
+          alert("Failed to upload image: " + uploadError.message);
+          setIsSubmitting(false);
+          return;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('flagged-items-images')
+          .getPublicUrl(filePath);
+        
+        fileUrl = urlData.publicUrl;
+      }
+
+      const payload = {
+        title: newFlaggedItem.title,
+        reason: newFlaggedItem.reason,
+        location: newFlaggedItem.location,
+        description: newFlaggedItem.description,
+        file_url: fileUrl,
+        status: "Active Alert",
+        date_flagged: new Date().toISOString().split('T')[0],
+        tracking_id: "FLAG-" + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        created_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase.from("flagged_items").insert([payload]).select();
+      
+      if (error) throw error;
+
+      setFlaggedItems([data[0], ...flaggedItems]);
+      setIsAddModalOpen(false);
+      setNewFlaggedItem({ title: "", description: "", reason: "", location: "" });
+      setSelectedImage(null);
+      alert("Flagged item added successfully and is now live on the website!");
+    } catch (error: any) {
+      console.error("Error adding flagged item:", error);
+      alert("Error adding flagged item: " + (error?.message || "Unknown error"));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getActiveData = () => {
@@ -334,6 +486,14 @@ export default function AdminDashboard() {
   const clearFilters = () => { setSearchQuery(""); setStatusFilter("all"); };
   const isFiltering = searchQuery !== "" || statusFilter !== "all";
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF7ED] dark:bg-[#431407]">
+        <Loader2 className="h-8 w-8 text-[#D97706] animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'dark bg-[#431407]' : 'bg-[#FFF7ED]'}`}>
       <div className="min-h-screen text-[#431407] dark:text-[#D97706]">
@@ -349,6 +509,15 @@ export default function AdminDashboard() {
                 <RefreshCw className={`h-5 w-5 ${loading ? "animate-spin" : ""}`} />
               </button>
               <ThemeToggle isDark={isDarkMode} toggle={() => setIsDarkMode(!isDarkMode)} />
+              
+              <button 
+                onClick={handleLogout} 
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors text-sm font-semibold border border-red-200 dark:border-red-800"
+              >
+                <X className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#D97706]/20 dark:bg-[#D97706]/10 border border-[#431407]/10 dark:border-[#D97706]/20">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-xs font-medium text-[#431407] dark:text-[#D97706]">System Online</span>
@@ -358,19 +527,7 @@ export default function AdminDashboard() {
         </header>
 
         <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#431407] dark:text-[#D97706]">Dashboard Overview</h2>
-              <p className="text-[#431407]/60 dark:text-[#D97706]/60 mt-1">Monitor and manage all recovery cases, found items, consultations, claims, and flagged items.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard title="Total Cases" value={totalCases} icon={LayoutDashboard} trend="+12% this month" />
-              <StatCard title="Pending Review" value={complaints.filter(c => c.status === 'pending').length + foundItems.filter(f => f.status === 'pending').length} icon={Clock} />
-              <StatCard title="Active Alerts" value={activeAlerts} icon={AlertTriangle} />
-              <StatCard title="Successfully Resolved" value={resolvedCases} icon={CheckCircle} trend="98% success rate" />
-            </div>
-          </div>
-
+          
           <div className="space-y-4">
             <div className="flex items-center gap-2 border-b border-[#431407]/10 dark:border-[#D97706]/10 overflow-x-auto no-scrollbar">
               <button onClick={() => { setActiveTab("complaints"); clearFilters(); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "complaints" ? "text-[#431407] dark:text-[#D97706]" : "text-[#431407]/50 dark:text-[#D97706]/50 hover:text-[#431407] dark:hover:text-[#D97706]"}`}>
@@ -393,172 +550,416 @@ export default function AdminDashboard() {
                 <span className="flex items-center gap-2"><Flag className="h-4 w-4" /> Flagged Items ({flaggedItems.length})</span>
                 {activeTab === "flagged" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-500" />}
               </button>
+              <button onClick={() => { setActiveTab("security"); }} className={`relative px-4 py-3 text-sm font-semibold transition-colors whitespace-nowrap ${activeTab === "security" ? "text-[#431407] dark:text-[#D97706]" : "text-[#431407]/50 dark:text-[#D97706]/50 hover:text-[#431407] dark:hover:text-[#D97706]"}`}>
+                <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Security</span>
+                {activeTab === "security" && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D97706]" />}
+              </button>
             </div>
+          </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 p-3 rounded-2xl border bg-white/80 border-[#431407]/10 dark:bg-[#431407]/60 dark:border-[#D97706]/10 backdrop-blur-sm">
-              <div className="relative flex-grow">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#431407]/40 dark:text-[#D97706]/40" />
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by ID, Name, Title, or Reason..." className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/10 dark:border-[#D97706]/10 text-sm text-[#431407] dark:text-[#D97706] placeholder:text-[#431407]/40 dark:placeholder:text-[#D97706]/40 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all" />
+          {activeTab !== "security" && (
+            <>
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[#431407] dark:text-[#D97706]">Dashboard Overview</h2>
+                  <p className="text-[#431407]/60 dark:text-[#D97706]/60 mt-1">Monitor and manage all recovery cases, found items, consultations, claims, and flagged items.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <StatCard title="Total Cases" value={totalCases} icon={LayoutDashboard} trend="+12% this month" />
+                  <StatCard title="Pending Review" value={complaints.filter(c => c.status === 'pending').length + foundItems.filter(f => f.status === 'pending').length} icon={Clock} />
+                  <StatCard title="Active Alerts" value={activeAlerts} icon={AlertTriangle} />
+                  <StatCard title="Successfully Resolved" value={resolvedCases} icon={CheckCircle} trend="98% success rate" />
+                </div>
               </div>
-              <div className="relative sm:w-48">
-                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#431407]/40 dark:text-[#D97706]/40 pointer-events-none" />
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/10 dark:border-[#D97706]/10 text-sm text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all appearance-none cursor-pointer">
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="Active Alert">Active Alert</option>
-                  <option value="Under Investigation">Under Investigation</option>
-                  <option value="Resolved">Resolved</option>
-                  <option value="claimed">Claimed</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+
+              {activeTab === "flagged" && (
+                <div className="flex justify-end">
+                  <button 
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-red-500/20 hover:shadow-red-500/40 hover:-translate-y-0.5"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Flagged Item
+                  </button>
+                </div>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-3 p-3 rounded-2xl border bg-white/80 border-[#431407]/10 dark:bg-[#431407]/60 dark:border-[#D97706]/10 backdrop-blur-sm">
+                <div className="relative flex-grow">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#431407]/40 dark:text-[#D97706]/40" />
+                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by ID, Name, Title, or Reason..." className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/10 dark:border-[#D97706]/10 text-sm text-[#431407] dark:text-[#D97706] placeholder:text-[#431407]/40 dark:placeholder:text-[#D97706]/40 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all" />
+                </div>
+                <div className="relative sm:w-48">
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#431407]/40 dark:text-[#D97706]/40 pointer-events-none" />
+                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/10 dark:border-[#D97706]/10 text-sm text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all appearance-none cursor-pointer">
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="Active Alert">Active Alert</option>
+                    <option value="Under Investigation">Under Investigation</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="claimed">Claimed</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <AnimatePresence>
+                  {isFiltering && (
+                    <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={clearFilters} className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#431407]/5 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#431407]/10 dark:hover:bg-[#D97706]/20 transition-colors text-sm font-medium whitespace-nowrap">
+                      <XCircle className="h-4 w-4" /> Clear
+                    </motion.button>
+                  )}
+                </AnimatePresence>
               </div>
-              <AnimatePresence>
-                {isFiltering && (
-                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={clearFilters} className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#431407]/5 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#431407]/10 dark:hover:bg-[#D97706]/20 transition-colors text-sm font-medium whitespace-nowrap">
-                    <XCircle className="h-4 w-4" /> Clear
-                  </motion.button>
+
+              <div className="rounded-2xl border overflow-hidden transition-colors duration-300 bg-white/80 border-[#431407]/10 dark:bg-[#431407]/60 dark:border-[#D97706]/10">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-[#431407]/5 dark:bg-[#D97706]/5 text-[#431407]/70 dark:text-[#D97706]/70 font-medium border-b border-[#431407]/10 dark:border-[#D97706]/10">
+                      <tr>
+                        {activeTab === "flagged" ? (
+                          <>
+                            <th className="px-6 py-4">Tracking ID</th>
+                            <th className="px-6 py-4">Title</th>
+                            <th className="px-6 py-4 hidden md:table-cell">Reason</th>
+                            <th className="px-6 py-4 hidden sm:table-cell">Location</th>
+                            <th className="px-6 py-4">Status</th>
+                            <th className="px-6 py-4 text-right">Actions</th>
+                          </>
+                        ) : activeTab === "consultations" ? (
+                          <>
+                            <th className="px-6 py-4">Name</th>
+                            <th className="px-6 py-4">Service Type</th>
+                            <th className="px-6 py-4 hidden md:table-cell">Date & Time</th>
+                            <th className="px-6 py-4 hidden sm:table-cell">Contact</th>
+                            <th className="px-6 py-4">Status</th>
+                            <th className="px-6 py-4 text-right">Actions</th>
+                          </>
+                        ) : activeTab === "claims" ? (
+                          <>
+                            <th className="px-6 py-4">Tracking ID</th>
+                            <th className="px-6 py-4">Claimant</th>
+                            <th className="px-6 py-4 hidden md:table-cell">Payment</th>
+                            <th className="px-6 py-4 hidden sm:table-cell">Date</th>
+                            <th className="px-6 py-4">Status</th>
+                            <th className="px-6 py-4 text-right">Actions</th>
+                          </>
+                        ) : (
+                          <>
+                            <th className="px-6 py-4">Tracking ID</th>
+                            <th className="px-6 py-4">Category / Item</th>
+                            <th className="px-6 py-4 hidden md:table-cell">Payment</th>
+                            <th className="px-6 py-4 hidden sm:table-cell">Date</th>
+                            <th className="px-6 py-4">Status</th>
+                            <th className="px-6 py-4 text-right">Actions</th>
+                          </>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#431407]/5 dark:divide-[#D97706]/5">
+                      <AnimatePresence mode="wait">
+                        {loading ? (
+                          <tr><td colSpan={6} className="px-6 py-12 text-center text-[#431407]/50 dark:text-[#D97706]/50"><RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />Loading data...</td></tr>
+                        ) : filteredData.length === 0 ? (
+                          <tr><td colSpan={6} className="px-6 py-12 text-center"><div className="flex flex-col items-center justify-center text-[#431407]/50 dark:text-[#D97706]/50"><AlertTriangle className="h-8 w-8 mb-2 text-[#431407]/30 dark:text-[#D97706]/30" /><p className="font-medium">No records found.</p></div></td></tr>
+                        ) : (
+                          filteredData.map((item: any, index: number) => (
+                            <motion.tr key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }} className="group hover:bg-[#D97706]/5 dark:hover:bg-[#D97706]/5 transition-colors">
+                              {activeTab === "flagged" ? (
+                                <>
+                                  <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
+                                  <td className="px-6 py-4 font-medium text-[#431407] dark:text-[#D97706]">{item.title}</td>
+                                  <td className="px-6 py-4 hidden md:table-cell text-sm text-[#431407]/70 dark:text-[#D97706]/70">{item.reason}</td>
+                                  <td className="px-6 py-4 hidden sm:table-cell text-sm text-[#431407]/60 dark:text-[#D97706]/60">{item.location}</td>
+                                  <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                  <td className="px-6 py-4 text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                      <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
+                                        <option value="Active Alert">Active Alert</option>
+                                        <option value="Under Investigation">Under Investigation</option>
+                                        <option value="Resolved">Resolved</option>
+                                      </select>
+                                    </div>
+                                  </td>
+                                </>
+                              ) : activeTab === "consultations" ? (
+                                <>
+                                  <td className="px-6 py-4 font-medium text-[#431407] dark:text-[#D97706]">{item.full_name}</td>
+                                  <td className="px-6 py-4 text-sm text-[#431407]/70 dark:text-[#D97706]/70">{item.service_type}</td>
+                                  <td className="px-6 py-4 hidden md:table-cell text-sm text-[#431407]/60 dark:text-[#D97706]/60">{item.preferred_date} at {item.preferred_time}</td>
+                                  <td className="px-6 py-4 hidden sm:table-cell"><div className="text-sm text-[#431407] dark:text-[#D97706]">{item.email}</div><div className="text-xs text-[#431407]/50 dark:text-[#D97706]/50">{item.phone}</div></td>
+                                  <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                  <td className="px-6 py-4 text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                      <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
+                                        <option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option><option value="completed">Completed</option>
+                                      </select>
+                                    </div>
+                                  </td>
+                                </>
+                              ) : activeTab === "claims" ? (
+                                <>
+                                  <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
+                                  <td className="px-6 py-4"><div className="font-medium text-[#431407] dark:text-[#D97706]">{item.full_name}</div></td>
+                                  {/* ✅ NEW: Payment Column for Claims */}
+                                  <td className="px-6 py-4 hidden md:table-cell">
+                                    {item.payment_method === 'bank_transfer' ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+                                        <Building2 className="h-3 w-3" /> Bank Transfer
+                                      </span>
+                                    ) : item.payment_method ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
+                                        <CreditCard className="h-3 w-3" /> Online
+                                      </span>
+                                    ) : <span className="text-xs text-slate-400">-</span>}
+                                  </td>
+                                  <td className="px-6 py-4 hidden sm:table-cell text-[#431407]/60 dark:text-[#D97706]/60">{new Date(item.created_at).toLocaleDateString()}</td>
+                                  <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                  <td className="px-6 py-4 text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                      <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
+                                        <option value="pending">Pending</option><option value="under_review">Under Review</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
+                                      </select>
+                                    </div>
+                                  </td>
+                                </>
+                              ) : (
+                                <>
+                                  <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
+                                  <td className="px-6 py-4"><div className="font-medium text-[#431407] dark:text-[#D97706]">{item.category || item.item_type}</div><div className="text-xs text-[#431407]/50 dark:text-[#D97706]/50 truncate max-w-[200px]">{activeTab === "complaints" ? item.item_type : item.description}</div></td>
+                                  {/* ✅ NEW: Payment Column for Complaints */}
+                                  <td className="px-6 py-4 hidden md:table-cell">
+                                    {item.payment_method === 'bank_transfer' ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+                                        <Building2 className="h-3 w-3" /> Bank Transfer
+                                      </span>
+                                    ) : item.payment_method ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
+                                        <CreditCard className="h-3 w-3" /> Online
+                                      </span>
+                                    ) : <span className="text-xs text-slate-400">-</span>}
+                                  </td>
+                                  <td className="px-6 py-4 hidden sm:table-cell text-[#431407]/60 dark:text-[#D97706]/60">{new Date(item.created_at).toLocaleDateString()}</td>
+                                  <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
+                                  <td className="px-6 py-4 text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                      <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
+                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
+                                        <option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="matched">Matched</option><option value="resolved">Resolved</option><option value="claimed">Claimed</option><option value="cancelled">Cancelled</option>
+                                      </select>
+                                    </div>
+                                  </td>
+                                </>
+                              )}
+                            </motion.tr>
+                          ))
+                        )}
+                      </AnimatePresence>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <DashboardChart complaints={complaints} foundItems={foundItems} />
+                <ActivityFeed complaints={complaints} foundItems={foundItems} consultations={consultations} claims={claims} flaggedItems={flaggedItems} />
+              </div>
+            </>
+          )}
+
+          {activeTab === "security" && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto w-full">
+              <div className="bg-white/80 dark:bg-[#431407]/60 backdrop-blur-sm border border-[#431407]/10 dark:border-[#D97706]/10 rounded-2xl p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 rounded-xl bg-[#D97706]/10 dark:bg-[#D97706]/20">
+                    <Smartphone className="h-6 w-6 text-[#D97706]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[#431407] dark:text-[#D97706]">Two-Factor Authentication</h3>
+                    <p className="text-sm text-[#431407]/60 dark:text-[#D97706]/60">Add an extra layer of security to your admin account.</p>
+                  </div>
+                </div>
+
+                {mfaStep === "idle" && (
+                  <div className="space-y-4">
+                    <div className={`p-4 rounded-xl border ${has2FA ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'}`}>
+                      <p className={`text-sm font-medium ${has2FA ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                        {has2FA ? "✅ Two-Factor Authentication is currently ACTIVE." : "⚠️ Two-Factor Authentication is currently DISABLED."}
+                      </p>
+                    </div>
+                    
+                    {has2FA ? (
+                      <button onClick={handleDisable2FA} className="w-full py-3 rounded-xl border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                        Disable Two-Factor Authentication
+                      </button>
+                    ) : (
+                      <button onClick={handleEnroll2FA} className="w-full py-3 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-semibold transition-colors shadow-lg shadow-[#D97706]/20">
+                        Enable Two-Factor Authentication
+                      </button>
+                    )}
+                  </div>
                 )}
-              </AnimatePresence>
-            </div>
 
-            <div className="rounded-2xl border overflow-hidden transition-colors duration-300 bg-white/80 border-[#431407]/10 dark:bg-[#431407]/60 dark:border-[#D97706]/10">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#431407]/5 dark:bg-[#D97706]/5 text-[#431407]/70 dark:text-[#D97706]/70 font-medium border-b border-[#431407]/10 dark:border-[#D97706]/10">
-                    <tr>
-                      {activeTab === "flagged" ? (
-                        <>
-                          <th className="px-6 py-4">Tracking ID</th>
-                          <th className="px-6 py-4">Title</th>
-                          <th className="px-6 py-4 hidden md:table-cell">Reason</th>
-                          <th className="px-6 py-4 hidden sm:table-cell">Location</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4 text-right">Actions</th>
-                        </>
-                      ) : activeTab === "consultations" ? (
-                        <>
-                          <th className="px-6 py-4">Name</th>
-                          <th className="px-6 py-4">Service Type</th>
-                          <th className="px-6 py-4 hidden md:table-cell">Date & Time</th>
-                          <th className="px-6 py-4 hidden sm:table-cell">Contact</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4 text-right">Actions</th>
-                        </>
-                      ) : activeTab === "claims" ? (
-                        <>
-                          <th className="px-6 py-4">Tracking ID</th>
-                          <th className="px-6 py-4">Claimant</th>
-                          <th className="px-6 py-4 hidden md:table-cell">Contact</th>
-                          <th className="px-6 py-4 hidden sm:table-cell">Date</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4 text-right">Actions</th>
-                        </>
-                      ) : (
-                        <>
-                          <th className="px-6 py-4">Tracking ID</th>
-                          <th className="px-6 py-4">Category / Item</th>
-                          <th className="px-6 py-4 hidden md:table-cell">Contact</th>
-                          <th className="px-6 py-4 hidden sm:table-cell">Date</th>
-                          <th className="px-6 py-4">Status</th>
-                          <th className="px-6 py-4 text-right">Actions</th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#431407]/5 dark:divide-[#D97706]/5">
-                    <AnimatePresence mode="wait">
-                      {loading ? (
-                        <tr><td colSpan={6} className="px-6 py-12 text-center text-[#431407]/50 dark:text-[#D97706]/50"><RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />Loading data...</td></tr>
-                      ) : filteredData.length === 0 ? (
-                        <tr><td colSpan={6} className="px-6 py-12 text-center"><div className="flex flex-col items-center justify-center text-[#431407]/50 dark:text-[#D97706]/50"><AlertTriangle className="h-8 w-8 mb-2 text-[#431407]/30 dark:text-[#D97706]/30" /><p className="font-medium">No records found.</p></div></td></tr>
-                      ) : (
-                        filteredData.map((item: any, index: number) => (
-                          <motion.tr key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }} className="group hover:bg-[#D97706]/5 dark:hover:bg-[#D97706]/5 transition-colors">
-                            {activeTab === "flagged" ? (
-                              <>
-                                <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
-                                <td className="px-6 py-4 font-medium text-[#431407] dark:text-[#D97706]">{item.title}</td>
-                                <td className="px-6 py-4 hidden md:table-cell text-sm text-[#431407]/70 dark:text-[#D97706]/70">{item.reason}</td>
-                                <td className="px-6 py-4 hidden sm:table-cell text-sm text-[#431407]/60 dark:text-[#D97706]/60">{item.location}</td>
-                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
-                                <td className="px-6 py-4 text-right">
-                                  <div className="flex items-center justify-end gap-2">
-                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
-                                      <option value="Active Alert">Active Alert</option>
-                                      <option value="Under Investigation">Under Investigation</option>
-                                      <option value="Resolved">Resolved</option>
-                                    </select>
-                                  </div>
-                                </td>
-                              </>
-                            ) : activeTab === "consultations" ? (
-                              <>
-                                <td className="px-6 py-4 font-medium text-[#431407] dark:text-[#D97706]">{item.full_name}</td>
-                                <td className="px-6 py-4 text-sm text-[#431407]/70 dark:text-[#D97706]/70">{item.service_type}</td>
-                                <td className="px-6 py-4 hidden md:table-cell text-sm text-[#431407]/60 dark:text-[#D97706]/60">{item.preferred_date} at {item.preferred_time}</td>
-                                <td className="px-6 py-4 hidden sm:table-cell"><div className="text-sm text-[#431407] dark:text-[#D97706]">{item.email}</div><div className="text-xs text-[#431407]/50 dark:text-[#D97706]/50">{item.phone}</div></td>
-                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
-                                <td className="px-6 py-4 text-right">
-                                  <div className="flex items-center justify-end gap-2">
-                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
-                                      <option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option><option value="completed">Completed</option>
-                                    </select>
-                                  </div>
-                                </td>
-                              </>
-                            ) : activeTab === "claims" ? (
-                              <>
-                                <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
-                                <td className="px-6 py-4"><div className="font-medium text-[#431407] dark:text-[#D97706]">{item.full_name}</div></td>
-                                <td className="px-6 py-4 hidden md:table-cell"><div className="text-[#431407] dark:text-[#D97706]">{item.email}</div><div className="text-xs text-[#431407]/50 dark:text-[#D97706]/50">{item.phone}</div></td>
-                                <td className="px-6 py-4 hidden sm:table-cell text-[#431407]/60 dark:text-[#D97706]/60">{new Date(item.created_at).toLocaleDateString()}</td>
-                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
-                                <td className="px-6 py-4 text-right">
-                                  <div className="flex items-center justify-end gap-2">
-                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
-                                      <option value="pending">Pending</option><option value="under_review">Under Review</option><option value="approved">Approved</option><option value="rejected">Rejected</option>
-                                    </select>
-                                  </div>
-                                </td>
-                              </>
-                            ) : (
-                              <>
-                                <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
-                                <td className="px-6 py-4"><div className="font-medium text-[#431407] dark:text-[#D97706]">{item.category || item.item_type}</div><div className="text-xs text-[#431407]/50 dark:text-[#D97706]/50 truncate max-w-[200px]">{activeTab === "complaints" ? item.item_type : item.description}</div></td>
-                                <td className="px-6 py-4 hidden md:table-cell"><div className="text-[#431407] dark:text-[#D97706]">{item.is_anonymous ? "Anonymous" : item.full_name}</div><div className="text-xs text-[#431407]/50 dark:text-[#D97706]/50">{item.email}</div></td>
-                                <td className="px-6 py-4 hidden sm:table-cell text-[#431407]/60 dark:text-[#D97706]/60">{new Date(item.created_at).toLocaleDateString()}</td>
-                                <td className="px-6 py-4"><StatusBadge status={item.status} /></td>
-                                <td className="px-6 py-4 text-right">
-                                  <div className="flex items-center justify-end gap-2">
-                                    <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                    <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
-                                      <option value="pending">Pending</option><option value="in_progress">In Progress</option><option value="matched">Matched</option><option value="resolved">Resolved</option><option value="claimed">Claimed</option><option value="cancelled">Cancelled</option>
-                                    </select>
-                                  </div>
-                                </td>
-                              </>
-                            )}
-                          </motion.tr>
-                        ))
-                      )}
-                    </AnimatePresence>
-                  </tbody>
-                </table>
+                {mfaStep === "enroll" && enrollData && (
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <p className="text-sm text-[#431407] dark:text-[#D97706] mb-4">1. Scan this QR code with your Google Authenticator app:</p>
+                      <div className="inline-block p-4 bg-white rounded-xl border border-[#431407]/10 dark:border-[#D97706]/20">
+                        <img src={enrollData.totp.qr_code} alt="2FA QR Code" className="w-48 h-48" />
+                      </div>
+                      <div className="mt-4 p-3 bg-[#FFF7ED] dark:bg-[#2A1205] rounded-lg border border-[#431407]/10 dark:border-[#D97706]/20">
+                        <p className="text-xs text-[#431407]/60 dark:text-[#D97706]/60 mb-1">Manual entry key (save this securely):</p>
+                        <p className="font-mono text-sm font-bold text-[#431407] dark:text-[#D97706] tracking-wider">{enrollData.totp.secret}</p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleVerify2FASetup} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#431407] dark:text-[#D97706] mb-1.5">2. Enter the 6-digit code from your app:</label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={6}
+                          required
+                          value={verifyCode}
+                          onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ''))}
+                          className="w-full px-4 py-3 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all text-center text-2xl tracking-widest font-mono"
+                          placeholder="000 000"
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <button type="button" onClick={() => { setMfaStep("idle"); setEnrollData(null); }} className="flex-1 py-3 rounded-xl border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] font-semibold hover:bg-[#431407]/5 dark:hover:bg-[#D97706]/10 transition-colors">
+                          Cancel
+                        </button>
+                        <button type="submit" className="flex-1 py-3 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white font-semibold transition-colors">
+                          Verify & Enable
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
+            </motion.div>
+          )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <DashboardChart complaints={complaints} foundItems={foundItems} />
-            <ActivityFeed complaints={complaints} foundItems={foundItems} consultations={consultations} claims={claims} flaggedItems={flaggedItems} />
-          </div>
         </main>
 
-        {/* Slide-Over Case Details Drawer */}
+        <AnimatePresence>
+          {isAddModalOpen && (
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                onClick={() => setIsAddModalOpen(false)} 
+                className="fixed inset-0 z-50 bg-[#431407]/60 dark:bg-black/80 backdrop-blur-sm" 
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.95, y: 20 }} 
+                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg bg-[#FFF7ED] dark:bg-[#431407] border border-[#431407]/10 dark:border-[#D97706]/20 rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-[#431407] dark:text-[#D97706]">Add Flagged Item</h3>
+                  <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-lg hover:bg-[#431407]/5 dark:hover:bg-[#D97706]/10 text-[#431407]/60 dark:text-[#D97706]/60 transition-colors">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                <form onSubmit={handleAddFlaggedItem} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#431407] dark:text-[#D97706] mb-1">Title *</label>
+                    <input 
+                      required
+                      type="text" 
+                      value={newFlaggedItem.title}
+                      onChange={(e) => setNewFlaggedItem({...newFlaggedItem, title: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all"
+                      placeholder="e.g., Stolen Vehicle, Suspicious Package"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-[#431407] dark:text-[#D97706] mb-1">Reason for Flagging *</label>
+                    <input 
+                      required
+                      type="text" 
+                      value={newFlaggedItem.reason}
+                      onChange={(e) => setNewFlaggedItem({...newFlaggedItem, reason: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all"
+                      placeholder="e.g., Reported stolen in Lagos"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#431407] dark:text-[#D97706] mb-1">Location *</label>
+                    <input 
+                      required
+                      type="text" 
+                      value={newFlaggedItem.location}
+                      onChange={(e) => setNewFlaggedItem({...newFlaggedItem, location: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all"
+                      placeholder="e.g., Ikeja, Lagos"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#431407] dark:text-[#D97706] mb-1">Description *</label>
+                    <textarea 
+                      required
+                      rows={3}
+                      value={newFlaggedItem.description}
+                      onChange={(e) => setNewFlaggedItem({...newFlaggedItem, description: e.target.value})}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all resize-none"
+                      placeholder="Detailed description of the item..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#431407] dark:text-[#D97706] mb-1">Upload Image (Optional)</label>
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => setSelectedImage(e.target.files?.[0] || null)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-[#2A1205] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#D97706]/10 file:text-[#431407] dark:file:bg-[#D97706]/20 dark:file:text-[#D97706] hover:file:bg-[#D97706]/20 dark:hover:file:bg-[#D97706]/30"
+                    />
+                    {selectedImage && (
+                      <p className="text-xs text-[#431407]/60 dark:text-[#D97706]/60 mt-1">
+                        Selected: {selectedImage.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <button 
+                      type="button"
+                      onClick={() => setIsAddModalOpen(false)}
+                      className="flex-1 px-4 py-2.5 rounded-xl border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] font-semibold hover:bg-[#431407]/5 dark:hover:bg-[#D97706]/10 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+                    >
+                      {isSubmitting ? (
+                        <><RefreshCw className="h-4 w-4 animate-spin" /> Uploading & Saving...</>
+                      ) : (
+                        <><Plus className="h-4 w-4" /> Add Item</>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence>
           {selectedItem && (
             <>
@@ -583,6 +984,15 @@ export default function AdminDashboard() {
                   
                   {activeTab === "flagged" ? (
                     <>
+                      {selectedItem.file_url && (
+                        <div className="rounded-xl overflow-hidden border border-[#431407]/10 dark:border-[#D97706]/10 bg-white dark:bg-[#2A1205] mb-4">
+                          <div className="px-4 py-2 bg-[#431407]/5 dark:bg-[#D97706]/5 border-b border-[#431407]/10 dark:border-[#D97706]/10 flex items-center gap-2">
+                            <ImageIcon className="h-4 w-4 text-[#431407] dark:text-[#D97706]" />
+                            <span className="text-xs font-bold text-[#431407] dark:text-[#D97706]">Flagged Item Image</span>
+                          </div>
+                          <img src={selectedItem.file_url} alt="Flagged Item" className="w-full h-48 object-cover" />
+                        </div>
+                      )}
                       <div className="space-y-2">
                         <h4 className="text-xs font-bold uppercase tracking-wider text-[#431407]/50 dark:text-[#D97706]/50">Reason for Flagging</h4>
                         <p className="text-sm text-[#431407] dark:text-[#D97706] leading-relaxed bg-white dark:bg-[#2A1205] p-4 rounded-xl border border-[#431407]/10 dark:border-[#D97706]/10">{selectedItem.reason}</p>
@@ -621,6 +1031,22 @@ export default function AdminDashboard() {
                           </p>
                         </div>
                       )}
+                      
+                      {/* ✅ NEW: Payment Details in Drawer */}
+                      {(activeTab === "complaints" || activeTab === "claims") && selectedItem.payment_reference && (
+                        <div className="flex items-start gap-3 p-4 rounded-xl bg-[#D97706]/10 dark:bg-[#D97706]/5 border border-[#D97706]/30 dark:border-[#D97706]/20 mb-4">
+                          <CreditCard className="h-5 w-5 text-[#431407] dark:text-[#D97706] flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs text-[#431407]/70 dark:text-[#D97706]/70 font-bold mb-1">Payment Information</p>
+                            <p className="text-sm font-mono text-[#431407] dark:text-[#D97706] break-all">{selectedItem.payment_reference}</p>
+                            <p className="text-[10px] uppercase mt-1.5 font-bold text-[#431407]/60 dark:text-[#D97706]/60 flex items-center gap-1">
+                              {selectedItem.payment_method === 'bank_transfer' ? <Building2 className="h-3 w-3" /> : <CreditCard className="h-3 w-3" />}
+                              Method: {selectedItem.payment_method === 'bank_transfer' ? 'Bank Transfer (Needs Verification)' : selectedItem.payment_method}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 gap-4">
                         {activeTab === "consultations" ? (
                           <>
@@ -662,16 +1088,6 @@ export default function AdminDashboard() {
                               </div>
                             )}
                           </>
-                        )}
-                        {activeTab === "complaints" && selectedItem.payment_reference && (
-                          <div className="flex items-start gap-3 p-3 rounded-xl bg-[#D97706]/20 dark:bg-[#D97706]/5 border border-[#D97706]/30 dark:border-[#D97706]/20">
-                            <CreditCard className="h-5 w-5 text-[#431407] dark:text-[#D97706] flex-shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-xs text-[#431407]/70 dark:text-[#D97706]/70 font-bold">Payment Reference</p>
-                              <p className="text-xs font-mono text-[#431407] dark:text-[#D97706] break-all">{selectedItem.payment_reference}</p>
-                              <p className="text-[10px] uppercase mt-1 font-bold text-[#431407]/50 dark:text-[#D97706]/50">Method: {selectedItem.payment_method}</p>
-                            </div>
-                          </div>
                         )}
                       </div>
                     </>

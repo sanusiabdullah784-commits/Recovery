@@ -8,7 +8,7 @@ import {
   AlertTriangle, TrendingUp, RefreshCw, ShieldCheck, 
   BarChart3, Sun, Moon, Eye, X, MapPin, Calendar, 
   User, Mail, Phone, Image as ImageIcon, CreditCard,
-  Search, Filter, XCircle, Activity, Zap, Briefcase, Flag, Plus, Loader2, Smartphone, Building2
+  Search, Filter, XCircle, Activity, Zap, Briefcase, Flag, Plus, Loader2, Smartphone, Building2, Pencil, Trash2
 } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import { useLanguage } from "@/context/LanguageContext";
@@ -263,6 +263,8 @@ export default function AdminDashboard() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  
   const [newFlaggedItem, setNewFlaggedItem] = useState({
     title: "",
     description: "",
@@ -382,6 +384,68 @@ export default function AdminDashboard() {
       else if (type === "flagged_items") setFlaggedItems(prev => prev.map(item => item.id === id ? { ...item, status: newStatus } : item));
     }
     setUpdatingId(null);
+  };
+
+  const handleEditFlaggedItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+    setIsSubmitting(true);
+    
+    let fileUrl = editingItem.file_url;
+
+    try {
+      if (selectedImage) {
+        const fileExt = selectedImage.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `flagged-${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('flagged-items-images')
+          .upload(filePath, selectedImage, { cacheControl: '3600', upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage.from('flagged-items-images').getPublicUrl(filePath);
+        fileUrl = urlData.publicUrl;
+      }
+
+      const payload = {
+        title: newFlaggedItem.title,
+        reason: newFlaggedItem.reason,
+        location: newFlaggedItem.location,
+        description: newFlaggedItem.description,
+        file_url: fileUrl,
+      };
+
+      const { error } = await supabase.from("flagged_items").update(payload).eq("id", editingItem.id);
+      
+      if (error) throw error;
+
+      setFlaggedItems(prev => prev.map(item => item.id === editingItem.id ? { ...item, ...payload } : item));
+      setIsAddModalOpen(false);
+      setEditingItem(null);
+      setNewFlaggedItem({ title: "", description: "", reason: "", location: "" });
+      setSelectedImage(null);
+      alert("Flagged item updated successfully!");
+    } catch (error: any) {
+      alert("Error updating flagged item: " + (error?.message || "Unknown error"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteFlaggedItem = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this flagged item? This action cannot be undone.")) return;
+    
+    try {
+      const { error } = await supabase.from("flagged_items").delete().eq("id", id);
+      if (error) throw error;
+      
+      setFlaggedItems(prev => prev.filter(item => item.id !== id));
+      alert("Flagged item deleted successfully!");
+    } catch (error: any) {
+      alert("Error deleting flagged item: " + (error?.message || "Unknown error"));
+    }
   };
 
   const handleAddFlaggedItem = async (e: React.FormEvent) => {
@@ -575,7 +639,12 @@ export default function AdminDashboard() {
               {activeTab === "flagged" && (
                 <div className="flex justify-end">
                   <button 
-                    onClick={() => setIsAddModalOpen(true)}
+                    onClick={() => {
+                      setEditingItem(null);
+                      setNewFlaggedItem({ title: "", description: "", reason: "", location: "" });
+                      setSelectedImage(null);
+                      setIsAddModalOpen(true);
+                    }}
                     className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-red-500/20 hover:shadow-red-500/40 hover:-translate-y-0.5"
                   >
                     <Plus className="h-4 w-4" />
@@ -674,11 +743,18 @@ export default function AdminDashboard() {
                                   <td className="px-6 py-4 text-right">
                                     <div className="flex items-center justify-end gap-2">
                                       <button onClick={() => setSelectedItem(item)} className="p-1.5 rounded-lg bg-[#D97706]/20 dark:bg-[#D97706]/10 text-[#431407] dark:text-[#D97706] hover:bg-[#D97706]/40 transition-colors" title="View Details"><Eye className="h-4 w-4" /></button>
-                                      <select value={item.status} onChange={(e) => updateStatus(item.id, tableType, e.target.value)} disabled={updatingId === item.id} className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors">
+                                      <select 
+                                        value={item.status} 
+                                        onChange={(e) => updateStatus(item.id, tableType, e.target.value)} 
+                                        disabled={updatingId === item.id} 
+                                        className="bg-white dark:bg-[#431407] border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#D97706]/50 disabled:opacity-50 cursor-pointer hover:border-[#D97706]/50 transition-colors"
+                                      >
                                         <option value="Active Alert">Active Alert</option>
                                         <option value="Under Investigation">Under Investigation</option>
                                         <option value="Resolved">Resolved</option>
                                       </select>
+                                      <button onClick={() => { setEditingItem(item); setNewFlaggedItem({ title: item.title, description: item.description, reason: item.reason, location: item.location }); setSelectedImage(null); setIsAddModalOpen(true); }} className="p-1.5 rounded-lg bg-blue-500/20 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/40 transition-colors" title="Edit"><Pencil className="h-4 w-4" /></button>
+                                      <button onClick={() => handleDeleteFlaggedItem(item.id)} className="p-1.5 rounded-lg bg-red-500/20 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/40 transition-colors" title="Delete"><Trash2 className="h-4 w-4" /></button>
                                     </div>
                                   </td>
                                 </>
@@ -702,7 +778,6 @@ export default function AdminDashboard() {
                                 <>
                                   <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
                                   <td className="px-6 py-4"><div className="font-medium text-[#431407] dark:text-[#D97706]">{item.full_name}</div></td>
-                                  {/* ✅ NEW: Payment Column for Claims */}
                                   <td className="px-6 py-4 hidden md:table-cell">
                                     {item.payment_method === 'bank_transfer' ? (
                                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
@@ -729,7 +804,6 @@ export default function AdminDashboard() {
                                 <>
                                   <td className="px-6 py-4"><span className="font-mono font-semibold text-[#431407] dark:text-[#D97706]">{item.tracking_id}</span></td>
                                   <td className="px-6 py-4"><div className="font-medium text-[#431407] dark:text-[#D97706]">{item.category || item.item_type}</div><div className="text-xs text-[#431407]/50 dark:text-[#D97706]/50 truncate max-w-[200px]">{activeTab === "complaints" ? item.item_type : item.description}</div></td>
-                                  {/* ✅ NEW: Payment Column for Complaints */}
                                   <td className="px-6 py-4 hidden md:table-cell">
                                     {item.payment_method === 'bank_transfer' ? (
                                       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
@@ -854,7 +928,7 @@ export default function AdminDashboard() {
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }} 
-                onClick={() => setIsAddModalOpen(false)} 
+                onClick={() => { setIsAddModalOpen(false); setEditingItem(null); }} 
                 className="fixed inset-0 z-50 bg-[#431407]/60 dark:bg-black/80 backdrop-blur-sm" 
               />
               <motion.div 
@@ -864,13 +938,13 @@ export default function AdminDashboard() {
                 className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg bg-[#FFF7ED] dark:bg-[#431407] border border-[#431407]/10 dark:border-[#D97706]/20 rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-[#431407] dark:text-[#D97706]">Add Flagged Item</h3>
-                  <button onClick={() => setIsAddModalOpen(false)} className="p-2 rounded-lg hover:bg-[#431407]/5 dark:hover:bg-[#D97706]/10 text-[#431407]/60 dark:text-[#D97706]/60 transition-colors">
+                  <h3 className="text-xl font-bold text-[#431407] dark:text-[#D97706]">{editingItem ? "Edit Flagged Item" : "Add Flagged Item"}</h3>
+                  <button onClick={() => { setIsAddModalOpen(false); setEditingItem(null); }} className="p-2 rounded-lg hover:bg-[#431407]/5 dark:hover:bg-[#D97706]/10 text-[#431407]/60 dark:text-[#D97706]/60 transition-colors">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
                 
-                <form onSubmit={handleAddFlaggedItem} className="space-y-4">
+                <form onSubmit={editingItem ? handleEditFlaggedItem : handleAddFlaggedItem} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-[#431407] dark:text-[#D97706] mb-1">Title *</label>
                     <input 
@@ -932,12 +1006,17 @@ export default function AdminDashboard() {
                         Selected: {selectedImage.name}
                       </p>
                     )}
+                    {editingItem && editingItem.file_url && !selectedImage && (
+                      <p className="text-xs text-[#431407]/60 dark:text-[#D97706]/60 mt-1">
+                        Current image will be kept if no new file is selected.
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex gap-3 pt-4">
                     <button 
                       type="button"
-                      onClick={() => setIsAddModalOpen(false)}
+                      onClick={() => { setIsAddModalOpen(false); setEditingItem(null); }}
                       className="flex-1 px-4 py-2.5 rounded-xl border border-[#431407]/20 dark:border-[#D97706]/20 text-[#431407] dark:text-[#D97706] font-semibold hover:bg-[#431407]/5 dark:hover:bg-[#D97706]/10 transition-colors"
                     >
                       Cancel
@@ -948,9 +1027,9 @@ export default function AdminDashboard() {
                       className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
                     >
                       {isSubmitting ? (
-                        <><RefreshCw className="h-4 w-4 animate-spin" /> Uploading & Saving...</>
+                        <><RefreshCw className="h-4 w-4 animate-spin" /> {editingItem ? "Updating..." : "Uploading & Saving..."}</>
                       ) : (
-                        <><Plus className="h-4 w-4" /> Add Item</>
+                        <>{editingItem ? "Update" : "Add"} Item</>
                       )}
                     </button>
                   </div>
@@ -1032,7 +1111,6 @@ export default function AdminDashboard() {
                         </div>
                       )}
                       
-                      {/* ✅ NEW: Payment Details in Drawer */}
                       {(activeTab === "complaints" || activeTab === "claims") && selectedItem.payment_reference && (
                         <div className="flex items-start gap-3 p-4 rounded-xl bg-[#D97706]/10 dark:bg-[#D97706]/5 border border-[#D97706]/30 dark:border-[#D97706]/20 mb-4">
                           <CreditCard className="h-5 w-5 text-[#431407] dark:text-[#D97706] flex-shrink-0 mt-0.5" />
